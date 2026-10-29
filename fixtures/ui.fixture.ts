@@ -1,33 +1,28 @@
 import { test as base } from '@playwright/test';
-import { HomePage } from '@page-objects/pages/home.page';
-import { ProductsPage } from '@page-objects/pages/products.page';
-import { LoginPage } from '@page-objects/pages/login.page';
-import { HeaderComponent } from '@components/header.component';
-import { CartDrawerComponent } from '@components/cart-drawer.component';
+import { SaucedemoLoginPage } from '@page-objects/pages/saucedemo-login.page';
+import { SaucedemoInventoryPage } from '@page-objects/pages/saucedemo-inventory.page';
+import { SaucedemoCartPage } from '@page-objects/pages/saucedemo-cart.page';
+import { SaucedemoCheckoutPage } from '@page-objects/pages/saucedemo-checkout.page';
 
 export interface UiFixtures {
-  homePage: HomePage;
-  productsPage: ProductsPage;
-  loginPage: LoginPage;
-  headerComponent: HeaderComponent;
-  cartDrawerComponent: CartDrawerComponent;
+  saucedemoLoginPage: SaucedemoLoginPage;
+  saucedemoInventoryPage: SaucedemoInventoryPage;
+  saucedemoCartPage: SaucedemoCartPage;
+  saucedemoCheckoutPage: SaucedemoCheckoutPage;
 }
 
 export const test = base.extend<UiFixtures>({
-  homePage: async ({ page }, use) => {
-    await use(new HomePage(page));
+  saucedemoLoginPage: async ({ page }, use) => {
+    await use(new SaucedemoLoginPage(page));
   },
-  productsPage: async ({ page }, use) => {
-    await use(new ProductsPage(page));
+  saucedemoInventoryPage: async ({ page }, use) => {
+    await use(new SaucedemoInventoryPage(page));
   },
-  loginPage: async ({ page }, use) => {
-    await use(new LoginPage(page));
+  saucedemoCartPage: async ({ page }, use) => {
+    await use(new SaucedemoCartPage(page));
   },
-  headerComponent: async ({ page }, use) => {
-    await use(new HeaderComponent(page));
-  },
-  cartDrawerComponent: async ({ page }, use) => {
-    await use(new CartDrawerComponent(page));
+  saucedemoCheckoutPage: async ({ page }, use) => {
+    await use(new SaucedemoCheckoutPage(page));
   },
 });
 

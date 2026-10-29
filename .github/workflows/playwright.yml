@@ -47,6 +47,21 @@ jobs:
             config: audit
             project: audit-chrome
             browser: chromium
+          # Each *-authenticated project depends on "setup" (chromium, per
+          # config/playwright.ui.config.ts), so these legs need chromium installed
+          # too, alongside their own target browser.
+          - name: ui-chromium-authenticated
+            config: ui
+            project: chromium-authenticated
+            browser: chromium
+          - name: ui-firefox-authenticated
+            config: ui
+            project: firefox-authenticated
+            browser: 'chromium firefox'
+          - name: ui-webkit-authenticated
+            config: ui
+            project: webkit-authenticated
+            browser: 'chromium webkit'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

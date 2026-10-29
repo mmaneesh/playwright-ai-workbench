@@ -4,7 +4,7 @@ services:
     init: true
     shm_size: '1gb'
     environment:
-      UI_BASE_URL: ${UI_BASE_URL:-https://storedemo.testdino.com}
+      UI_BASE_URL: ${UI_BASE_URL:-https://www.saucedemo.com}
       API_BASE_URL: ${API_BASE_URL:-https://billpay-api.gauravkhurana-practice-api.workers.dev}
       CI: 'true'
     volumes:
@@ -16,7 +16,7 @@ services:
     init: true
     shm_size: '1gb'
     environment:
-      UI_BASE_URL: ${UI_BASE_URL:-https://storedemo.testdino.com}
+      UI_BASE_URL: ${UI_BASE_URL:-https://www.saucedemo.com}
       CI: 'true'
     volumes:
       - ./tests/visual:/workbench/tests/visual

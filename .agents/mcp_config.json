@@ -11,7 +11,7 @@
         "chrome",
         "--no-webmcp",
         "--allowed-origins",
-        "https://storedemo.testdino.com;https://billpay-api.gauravkhurana-practice-api.workers.dev"
+        "https://www.saucedemo.com;https://billpay-api.gauravkhurana-practice-api.workers.dev"
       ]
     }
   }

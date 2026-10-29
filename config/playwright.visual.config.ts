@@ -11,7 +11,7 @@ export default defineConfig({
   snapshotPathTemplate: '{testDir}/snapshots/{projectName}/{testFileDir}/{arg}{ext}',
   reporter: [['list'], ['html', { outputFolder: '../playwright-report/visual', open: 'never' }]],
   use: {
-    baseURL: process.env.UI_BASE_URL || 'https://storedemo.testdino.com',
+    baseURL: process.env.UI_BASE_URL || 'https://www.saucedemo.com',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },

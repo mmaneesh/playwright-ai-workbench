@@ -1,6 +1,8 @@
 # Agreed Scope and Verification Ledger
 
-Updated: October 26, 2026.
+Updated: October 29, 2026.
+
+TestDino Demo Store was removed as a target on 2026-10-29 (all files, config and doc references deleted or repointed) in favor of Sauce Demo, a second target chosen to prove the framework and the `storageState` auth pattern against a genuinely different, auth-gated application. Phase entries below that reference TestDino describe work that happened and is retained for history, per `D-007`; they are not current state.
 
 `PLAN.md` records the agreed scope. This ledger records evidence and outstanding work; implementation alone does not imply approval. The full roadmap is retained as agreed in architectural planning. Pending roadmap entries do not authorize implementation; review and approval are required before each later phase.
 
@@ -10,10 +12,11 @@ Updated: October 26, 2026.
 
 - **API Contract Target**: Gaurav Khurana Bill Payment API (`https://billpay-api.gauravkhurana-practice-api.workers.dev`)
   - Auth: `X-API-Key: demo-api-key-123`
-- **Primary UI / Visual / Audit Target**: TestDino Demo Store (`https://storedemo.testdino.com`)
-  - Configured in `env-config/testdino.env` and active `env-config/dev.env` (`.env`)
+- **Primary UI / Visual / Audit Target**: Sauce Demo / Swag Labs (`https://www.saucedemo.com`)
+  - Configured in `env-config/saucedemo.env` and active `env-config/dev.env` (`.env`)
+  - Workbook: [`docs/targets/saucedemo.md`](targets/saucedemo.md); ledger: [`docs/targets/saucedemo-defects.md`](targets/saucedemo-defects.md)
 - **Archived UI Target**: LambdaTest eCommerce Playground (`https://ecommerce-playground.lambdatest.io`)
-  - Preserved in `env-config/lambdatest.env` for environment toggling via `npm run env:config -- lambdatest`
+  - Preserved in `env-config/lambdatest.env` for environment toggling via `npm run env:config -- lambdatest`; never exercised by any current spec
 
 ---
 
@@ -22,7 +25,7 @@ Updated: October 26, 2026.
 - [x] ~~P1.1 Authoritative blueprint: `CORE_PRINCIPLES.md` defining Commands, Code Standards, Guardrails, Folder Structure, Naming Conventions, and Workflow & Approvals.~~ Implemented at repository root with all 6 core sections.
 - [x] ~~P1.2 Signal-only orchestrators: Tabular `CLAUDE.md`, `AGENTS.md`, and `GEMINI.md` free from task checklists and prose filler.~~ Implemented across all 3 AI entrypoints with dense tabular quick-reference format.
 - [x] ~~P1.3 Suite configurations: 4 independent configs (`playwright.ui.config.ts`, `playwright.api.config.ts`, `playwright.visual.config.ts`, `playwright.audit.config.ts`).~~ Verified: test discovery listed all suites cleanly across all 4 configs without path prefixes.
-- [x] ~~P1.4 Environment management: Atomic `env:config` (`dev`, `stg`, `uat`, `prod`, `testdino`, `lambdatest`) with fallback defaults.~~ Verified: `npm run env:config -- <env>` copies templates cleanly to `.env`.
+- [x] ~~P1.4 Environment management: Atomic `env:config` (`dev`, `stg`, `uat`, `prod`, `saucedemo`, `lambdatest`) with fallback defaults.~~ Verified: `npm run env:config -- <env>` copies templates cleanly to `.env`.
 - [x] ~~P1.5 Single-stack guardrails: Pure TypeScript rule checker (`scripts/guardrails/check-rules.ts`) blocking forbidden anti-patterns (`waitForTimeout`, XPath, `any`, untyped JSON, pseudo-Gherkin).~~ Verified: executed via `tsx` with 0 violations; wired as a Claude Code PreToolUse hook.
 - [x] ~~P1.6 Docker setup: `Dockerfile` and `docker-compose.yml` for containerized visual snapshot execution.~~ Configured with dedicated `visual-tests` service and workspace volume mounting.
 - [x] ~~P1.7 Package and quality tooling: Strict TypeScript path aliases, ESLint with `eslint-plugin-playwright`, Prettier, Husky, lint-staged.~~ Verified: `npm run check` passed with exit code 0.
@@ -89,17 +92,17 @@ Updated: October 26, 2026.
 - [x] ~~P5.2 Single-Workbook Target Architecture (`docs/targets/`).~~
   - Unified living workbook: `docs/targets/<site>.md` containing all 5 phases in one cohesive document.
   - Dedicated living defect ledger: `docs/targets/<site>-defects.md` for objective RIMGEA bug reporting.
-  - Initialized for primary target: `docs/targets/testdino.md` (structured with all 12 exploration points) and `docs/targets/testdino-defects.md`.
+  - Initialized for the then-primary target (TestDino, structured with all 12 exploration points, and its defect ledger); both removed 2026-10-29 in favor of Sauce Demo's `docs/targets/saucedemo.md`.
 - [x] ~~P5.3 Agent Skills Library.~~
   - Cross-platform AI skills created in `.agents/skills/` and `.claude/skills/`: `explore`, `scenarios`, `design`, `test-spec`, `evidence`, `pr-review`.
 - [x] ~~P5.4 Autonomous Exploration Agent Definition & MCP Wiring.~~
   - Agent persona specification authored in `.agents/agents/explorer.md` and `.claude/agents/explorer.md`.
   - Antigravity subagent `explorer` registered with the full 12-point context-driven reconnaissance system prompt.
-  - MCP authorization configured in `.mcp.json`, `.agents/mcp_config.json`, and `.codex/config.toml` allowing `https://storedemo.testdino.com`.
-- [x] ~~P5.5 Execution of Phase 1 Reconnaissance on TestDino~~ — scoped to Home and /products only (DEF-001..006 logged). Original items:
+  - MCP authorization configured in `.mcp.json`, `.agents/mcp_config.json`, and `.codex/config.toml`, now allowing `https://www.saucedemo.com`.
+- [x] ~~P5.5 Execution of Phase 1 Reconnaissance on TestDino~~ — scoped to Home and /products only (6 defects logged, now removed with the target). Original items:
   - Run browser exploration probe across all 12 points.
-  - Populate Section 1 of `docs/targets/testdino.md`.
-  - Record any observed bugs in `docs/targets/testdino-defects.md`.
+  - Populate Section 1 of the target workbook.
+  - Record any observed bugs in the target's defect ledger.
 
 ---
 
