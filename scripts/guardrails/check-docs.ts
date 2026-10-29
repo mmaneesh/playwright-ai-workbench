@@ -220,23 +220,65 @@ function checkAgentBodies(): void {
   }
 }
 
-// Claude agent tool names must use a server that .mcp.json defines.
+// Claude agent tool names must use a server that .mcp.json defines, and (closes L-001)
+// the specific tool must actually exist on that server's pinned version, checked against
+// a ground-truth allowlist captured from a live session - not just that the server exists.
 function checkClaudeToolServers(): void {
   const agentsDir = path.join('.claude', 'agents');
   if (!fs.existsSync(agentsDir) || !fs.existsSync('.mcp.json')) return;
   const parsed: unknown = JSON.parse(read('.mcp.json'));
-  const servers = new Set(
+  const serverConfigs =
     typeof parsed === 'object' && parsed !== null && 'mcpServers' in parsed
-      ? Object.keys((parsed as { mcpServers: Record<string, unknown> }).mcpServers)
-      : []
-  );
+      ? (parsed as { mcpServers: Record<string, { args?: string[] }> }).mcpServers
+      : {};
+  const servers = new Set(Object.keys(serverConfigs));
+
+  const allowlistPath = path.join('scripts', 'guardrails', 'mcp-tool-allowlist.json');
+  const allowlist: Record<string, Record<string, string[]>> = fs.existsSync(allowlistPath)
+    ? JSON.parse(read(allowlistPath))
+    : {};
+
+  // Resolve each server's pinned "<package>@<version>" from its launch args, e.g.
+  // "@playwright/mcp@0.0.83", so a version bump is visible without parsing lockfiles.
+  const pinnedVersions = new Map<string, string>();
+  for (const [server, config] of Object.entries(serverConfigs)) {
+    const pinned = (config.args ?? []).find((arg) => /^@?[\w-]+\/[\w-]+@[\w.-]+$/.test(arg));
+    if (pinned) pinnedVersions.set(server, pinned);
+  }
+
   for (const name of fs.readdirSync(agentsDir)) {
     const file = path.join(agentsDir, name);
     const toolsLine = /^tools:\s*(.+)$/m.exec(read(file))?.[1] ?? '';
     for (const tool of toolsLine.split(',').map((t) => t.trim())) {
-      const server = /^mcp__([^_]+(?:_[^_]+)*?)__/.exec(tool)?.[1];
-      if (server && !servers.has(server)) {
+      const match = /^mcp__([^_]+(?:_[^_]+)*?)__(.+)$/.exec(tool);
+      if (!match) continue;
+      const [, server, toolName] = match;
+      if (!servers.has(server)) {
         report(file, `tool ${tool} uses server "${server}" which .mcp.json does not define`);
+        continue;
+      }
+      const serverAllowlist = allowlist[server];
+      if (!serverAllowlist) {
+        report(
+          file,
+          `server "${server}" has no entry in ${allowlistPath}; add one to verify ${tool}`
+        );
+        continue;
+      }
+      const pinned = pinnedVersions.get(server);
+      const versionTools = pinned ? serverAllowlist[pinned] : undefined;
+      if (!versionTools) {
+        report(
+          file,
+          `${allowlistPath} has no tool list for ${server}@${pinned ?? 'unknown'}; regenerate it from a live session before trusting ${tool}`
+        );
+        continue;
+      }
+      if (!versionTools.includes(toolName)) {
+        report(
+          file,
+          `tool ${tool} is not in the known tool set for ${pinned} - it was likely renamed or removed upstream`
+        );
       }
     }
   }

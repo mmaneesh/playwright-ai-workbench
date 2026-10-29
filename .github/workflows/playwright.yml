@@ -7,7 +7,76 @@ on:
 permissions:
   contents: read
 jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+
   test:
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: ui-chromium
+            config: ui
+            project: chromium
+            browser: chromium
+          - name: ui-firefox
+            config: ui
+            project: firefox
+            browser: firefox
+          - name: ui-webkit
+            config: ui
+            project: webkit
+            browser: webkit
+          - name: api
+            config: api
+            project: ''
+            browser: ''
+          - name: audit
+            config: audit
+            project: audit-chrome
+            browser: chromium
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Cache Playwright browser binaries
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-browsers-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Install Playwright browser
+        if: matrix.browser != ''
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Run ${{ matrix.name }} suite
+        run: >-
+          npx playwright test --config=config/playwright.${{ matrix.config }}.config.ts
+          ${{ matrix.project != '' && format('--project={0}', matrix.project) || '' }}
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-evidence-${{ matrix.name }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
+
+  independence-check:
+    needs: check
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -17,14 +86,15 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npm run check
-      - run: npx playwright install --with-deps
-      - run: npm test
-      - uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }}
+      - name: Cache Playwright browser binaries
+        uses: actions/cache@v4
         with:
-          name: playwright-evidence
-          path: |
-            playwright-report/
-            test-results/
-          retention-days: 14
+          path: ~/.cache/ms-playwright
+          key: playwright-browsers-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - run: npx playwright install --with-deps chromium
+      - name: Repeat each UI test under high parallelism to catch shared-state leakage
+        # CORE_PRINCIPLES.md claims every test "runs alone and in any order"; this job is
+        # the mechanical check for that claim rather than an unverified assertion.
+        run: >-
+          npx playwright test --config=config/playwright.ui.config.ts --project=chromium
+          --repeat-each=2 --workers=4 --retries=0
