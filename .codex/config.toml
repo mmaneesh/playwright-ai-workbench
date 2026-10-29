@@ -1,0 +1,4 @@
+# Project-local MCP. Load only after trusting this project.
+[mcp_servers.playwright]
+command = "npx"
+args = ["--yes","@playwright/mcp@0.0.83","--isolated","--headless","--browser","chrome","--no-webmcp","--allowed-origins","https://storedemo.testdino.com;https://billpay-api.gauravkhurana-practice-api.workers.dev"]

@@ -1,0 +1,60 @@
+{
+  "name": "playwright-ai-workbench",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A simple Playwright framework with UI, API, visual, Docker, and supervised AI workflows.",
+  "type": "module",
+  "license": "ISC",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "npm run test:ui && npm run test:api && npm run test:audit",
+    "test:ui": "playwright test --config=config/playwright.ui.config.ts",
+    "test:api": "playwright test --config=config/playwright.api.config.ts",
+    "test:visual": "playwright test --config=config/playwright.visual.config.ts",
+    "test:visual:docker": "docker compose run --rm visual-tests",
+    "test:audit": "playwright test --config=config/playwright.audit.config.ts",
+    "guardrails:check": "tsx scripts/guardrails/check-rules.ts",
+    "docs:check": "tsx scripts/guardrails/check-docs.ts",
+    "skills:sync": "tsx scripts/skills/sync-skills.ts",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run lint && npm run format:check && npm run typecheck && npm run guardrails:check && npm run docs:check",
+    "report": "playwright show-report playwright-report/ui",
+    "format:check": "prettier . --check",
+    "precommit": "lint-staged && npm run typecheck && npm run guardrails:check && npm run docs:check",
+    "prepare": "husky",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix --max-warnings=0",
+    "format": "prettier . --write",
+    "test:ci": "cross-env CI=true npm test",
+    "env:config": "node -e \"require('fs').copyFileSync('env-config/'+process.argv[1]+'.env','.env')\""
+  },
+  "dependencies": {
+    "@axe-core/playwright": "^4.10.1",
+    "@faker-js/faker": "^9.6.0",
+    "dotenv": "^16.4.7",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.63.0",
+    "@types/node": "^24.0.0",
+    "cross-env": "10.1.0",
+    "eslint": "10.12.0",
+    "eslint-plugin-playwright": "2.12.1",
+    "husky": "9.1.7",
+    "lint-staged": "17.6.0",
+    "prettier": "3.9.9",
+    "tsx": "^4.19.3",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "8.71.1"
+  },
+  "lint-staged": {
+    "*.{ts,js,mjs,cjs}": [
+      "eslint --max-warnings=0",
+      "prettier --check"
+    ],
+    "*.{json,md,yml,yaml}": "prettier --check"
+  }
+}

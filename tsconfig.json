@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "noImplicitAny": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@page-objects/*": ["page-objects/*"],
+      "@components/*": ["page-objects/components/*"],
+      "@fixtures": ["fixtures/index.ts"],
+      "@fixtures/*": ["fixtures/*"],
+      "@types/*": ["types/*"],
+      "@test-data/*": ["test-data/*"],
+      "@helpers/*": ["helpers/*"]
+    },
+    "types": ["node"]
+  },
+  "include": [
+    "page-objects/**/*.ts",
+    "fixtures/**/*.ts",
+    "tests/**/*.ts",
+    "types/**/*.ts",
+    "test-data/**/*.ts",
+    "config/**/*.ts",
+    "env-config/**/*.ts",
+    "helpers/**/*.ts",
+    "scripts/**/*.ts"
+  ]
+}

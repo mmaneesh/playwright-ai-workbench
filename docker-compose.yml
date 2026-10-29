@@ -1,0 +1,25 @@
+services:
+  tests:
+    build: .
+    init: true
+    shm_size: '1gb'
+    environment:
+      UI_BASE_URL: ${UI_BASE_URL:-https://storedemo.testdino.com}
+      API_BASE_URL: ${API_BASE_URL:-https://billpay-api.gauravkhurana-practice-api.workers.dev}
+      CI: 'true'
+    volumes:
+      - ./playwright-report:/workbench/playwright-report
+      - ./test-results:/workbench/test-results
+
+  visual-tests:
+    build: .
+    init: true
+    shm_size: '1gb'
+    environment:
+      UI_BASE_URL: ${UI_BASE_URL:-https://storedemo.testdino.com}
+      CI: 'true'
+    volumes:
+      - ./tests/visual:/workbench/tests/visual
+      - ./playwright-report:/workbench/playwright-report
+      - ./test-results:/workbench/test-results
+    command: ['npm', 'run', 'test:visual']

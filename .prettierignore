@@ -1,0 +1,10 @@
+node_modules/
+test-results/
+playwright-report/
+blob-report/
+package-lock.json
+.env
+.env.*
+env-config/*.env
+.husky/_/
+.playwright-mcp/

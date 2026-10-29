@@ -1,0 +1,16 @@
+node_modules/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+playwright/.auth/
+.env
+.env.*
+!.env.example
+.claude/settings.local.json
+.superpowers/
+.workbench/runs/
+*.log
+*.tgz
+.playwright-mcp/
+.DS_Store
