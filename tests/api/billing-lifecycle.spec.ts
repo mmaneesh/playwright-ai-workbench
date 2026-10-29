@@ -76,12 +76,20 @@ test(
     });
 
     await test.step('Verify that the bill status has transitioned to paid', async () => {
-      const response = await authedRequest.get(`/v1/bills/${billId}`);
-      expect(response.status()).toBe(200);
-
-      const parsed = BillSingleResponseSchema.parse(await response.json());
-      expect(parsed.success).toBe(true);
-      expect(parsed.data.status).toBe('paid');
+      // Payment processing is asynchronous: the bill briefly stays "pending" after
+      // the payment call returns. Poll instead of asserting once (no hard sleep).
+      await expect
+        .poll(
+          async () => {
+            const response = await authedRequest.get(`/v1/bills/${billId}`);
+            expect(response.status()).toBe(200);
+            const parsed = BillSingleResponseSchema.parse(await response.json());
+            expect(parsed.success).toBe(true);
+            return parsed.data.status;
+          },
+          { message: 'Expected bill status to transition to paid', timeout: 10_000 }
+        )
+        .toBe('paid');
     });
 
     await test.step('Retrieve and validate the final payment transaction receipt', async () => {

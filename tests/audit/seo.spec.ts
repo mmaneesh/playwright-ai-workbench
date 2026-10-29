@@ -98,35 +98,34 @@ test.describe('Universal SEO & Image Optimization Audit', { tag: '@audit' }, () 
     });
   });
 
-  test('below-the-fold images implement lazy loading to optimize performance', async ({ page }) => {
-    await test.step('Navigate to target application root', async () => {
-      await page.goto('/', { waitUntil: 'domcontentloaded' });
-    });
+  test(
+    'below-the-fold images implement lazy loading to optimize performance',
+    { annotation: [{ type: 'defect', description: 'DEF-008' }] },
+    async ({ page }) => {
+      // Known defect DEF-008 (docs/targets/testdino-defects.md): none of the below-fold
+      // images implement lazy loading. Remove this test.fail() once DEF-008 is
+      // remediated, then re-verify with a clean run before moving it to Verified.
+      test.fail(true, 'DEF-008: below-the-fold images do not implement lazy loading');
 
-    await test.step('Scan below-the-fold images for native loading="lazy" or data-src deferred loading', async () => {
-      const lazyLoadingEvaluation = await page.evaluate(() => {
-        const viewportHeight = window.innerHeight;
-        const allImages = Array.from(document.querySelectorAll('img'));
+      await test.step('Navigate to target application root and wait for the page to finish rendering', async () => {
+        await page.goto('/', { waitUntil: 'domcontentloaded' });
+        // domcontentloaded fires on the static shell before this SPA renders below-fold
+        // sections; wait for the last footer element as a reliable "fully rendered" marker.
+        await page.getByTestId('footer-copyright').waitFor();
+      });
 
-        // Identify images whose top boundary lies below the initial viewport fold
-        const belowFoldImages = allImages.filter((img) => {
-          const rect = img.getBoundingClientRect();
-          return rect.top > viewportHeight;
-        });
+      await test.step('Scan below-the-fold images for native loading="lazy" or data-src deferred loading', async () => {
+        const lazyLoadingEvaluation = await page.evaluate(() => {
+          const viewportHeight = window.innerHeight;
+          const allImages = Array.from(document.querySelectorAll('img'));
 
-        const compliantImages = belowFoldImages.filter((img) => {
-          const hasNativeLazy = img.getAttribute('loading') === 'lazy';
-          const hasDataSrc = Boolean(img.getAttribute('data-src'));
-          const hasLazyClass =
-            img.classList.contains('lazy-load') ||
-            img.classList.contains('lazy') ||
-            img.classList.contains('lazyload');
+          // Identify images whose top boundary lies below the initial viewport fold
+          const belowFoldImages = allImages.filter((img) => {
+            const rect = img.getBoundingClientRect();
+            return rect.top > viewportHeight;
+          });
 
-          return hasNativeLazy || hasDataSrc || hasLazyClass;
-        });
-
-        const nonCompliantSnippets = belowFoldImages
-          .filter((img) => {
+          const compliantImages = belowFoldImages.filter((img) => {
             const hasNativeLazy = img.getAttribute('loading') === 'lazy';
             const hasDataSrc = Boolean(img.getAttribute('data-src'));
             const hasLazyClass =
@@ -134,37 +133,50 @@ test.describe('Universal SEO & Image Optimization Audit', { tag: '@audit' }, () 
               img.classList.contains('lazy') ||
               img.classList.contains('lazyload');
 
-            return !(hasNativeLazy || hasDataSrc || hasLazyClass);
-          })
-          .map((img) => ({
-            src: img.src?.slice(0, 80),
-            top: Math.round(img.getBoundingClientRect().top),
-            classes: img.className,
-          }));
+            return hasNativeLazy || hasDataSrc || hasLazyClass;
+          });
 
-        return {
-          totalImages: allImages.length,
-          belowFoldCount: belowFoldImages.length,
-          compliantCount: compliantImages.length,
-          nonCompliantCount: nonCompliantSnippets.length,
-          nonCompliantSample: nonCompliantSnippets.slice(0, 5),
-        };
+          const nonCompliantSnippets = belowFoldImages
+            .filter((img) => {
+              const hasNativeLazy = img.getAttribute('loading') === 'lazy';
+              const hasDataSrc = Boolean(img.getAttribute('data-src'));
+              const hasLazyClass =
+                img.classList.contains('lazy-load') ||
+                img.classList.contains('lazy') ||
+                img.classList.contains('lazyload');
+
+              return !(hasNativeLazy || hasDataSrc || hasLazyClass);
+            })
+            .map((img) => ({
+              src: img.src?.slice(0, 80),
+              top: Math.round(img.getBoundingClientRect().top),
+              classes: img.className,
+            }));
+
+          return {
+            totalImages: allImages.length,
+            belowFoldCount: belowFoldImages.length,
+            compliantCount: compliantImages.length,
+            nonCompliantCount: nonCompliantSnippets.length,
+            nonCompliantSample: nonCompliantSnippets.slice(0, 5),
+          };
+        });
+
+        // Confirm that the site implements lazy loading patterns for below-fold imagery
+        expect(
+          lazyLoadingEvaluation.belowFoldCount,
+          'Expected at least some images to be positioned below the fold'
+        ).toBeGreaterThan(0);
+
+        // Verify that the vast majority (>= 70%) of offscreen images utilize lazy loading
+        const lazyComplianceRatio =
+          lazyLoadingEvaluation.compliantCount / lazyLoadingEvaluation.belowFoldCount;
+
+        expect(
+          lazyComplianceRatio,
+          `Below-the-fold lazy loading compliance ratio is ${(lazyComplianceRatio * 100).toFixed(1)}%. Sample non-compliant images: ${JSON.stringify(lazyLoadingEvaluation.nonCompliantSample, null, 2)}`
+        ).toBeGreaterThanOrEqual(0.7);
       });
-
-      // Confirm that the site implements lazy loading patterns for below-fold imagery
-      expect(
-        lazyLoadingEvaluation.belowFoldCount,
-        'Expected at least some images to be positioned below the fold'
-      ).toBeGreaterThan(0);
-
-      // Verify that the vast majority (>= 70%) of offscreen images utilize lazy loading
-      const lazyComplianceRatio =
-        lazyLoadingEvaluation.compliantCount / lazyLoadingEvaluation.belowFoldCount;
-
-      expect(
-        lazyComplianceRatio,
-        `Below-the-fold lazy loading compliance ratio is ${(lazyComplianceRatio * 100).toFixed(1)}%. Sample non-compliant images: ${JSON.stringify(lazyLoadingEvaluation.nonCompliantSample, null, 2)}`
-      ).toBeGreaterThanOrEqual(0.7);
-    });
-  });
+    }
+  );
 });
