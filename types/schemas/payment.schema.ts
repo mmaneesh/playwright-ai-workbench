@@ -25,7 +25,7 @@ export const PaymentSchema = z.object({
   status: z.string(),
   paymentMethodId: z.string().optional(),
   transactionId: z.string().optional(),
-  processedAt: z.string().optional(),
+  processedAt: z.string().nullable().optional(),
   createdAt: z.string().optional(),
 });
 

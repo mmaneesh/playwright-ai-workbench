@@ -120,36 +120,45 @@ import AxeBuilder from '@axe-core/playwright';
  */
 
 test.describe('Universal Accessibility Audit (WCAG 2.1 AA)', { tag: '@audit' }, () => {
-  test('landing page satisfies WCAG 2.1 AA accessibility standards', async ({ page }) => {
-    await test.step('Navigate to the target application root', async () => {
-      await page.goto('/', { waitUntil: 'domcontentloaded' });
-    });
+  test(
+    'landing page satisfies WCAG 2.1 AA accessibility standards',
+    { annotation: [{ type: 'defect', description: 'DEF-007' }] },
+    async ({ page }) => {
+      // Known defect DEF-007 (docs/targets/testdino-defects.md): New Arrivals carousel
+      // clone slides expose focusable controls. Remove this test.fail() once DEF-007
+      // is remediated, then re-verify with a clean run before moving it to Verified.
+      test.fail(true, 'DEF-007: carousel clone slides expose focusable wishlist/cart buttons');
 
-    await test.step('Execute comprehensive Axe-core scan for WCAG 2.1 AA rules', async () => {
-      const results = await new AxeBuilder({ page })
-        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-        .analyze();
+      await test.step('Navigate to the target application root', async () => {
+        await page.goto('/', { waitUntil: 'domcontentloaded' });
+      });
 
-      // Zero tolerance for critical/serious accessibility barriers across the application
-      const criticalOrSeriousViolations = results.violations.filter(
-        (v) => v.impact === 'critical' || v.impact === 'serious'
-      );
+      await test.step('Execute comprehensive Axe-core scan for WCAG 2.1 AA rules', async () => {
+        const results = await new AxeBuilder({ page })
+          .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+          .analyze();
 
-      const diagnosticReport = criticalOrSeriousViolations.map((v) => ({
-        id: v.id,
-        impact: v.impact,
-        description: v.description,
-        helpUrl: v.helpUrl,
-        affectedNodesCount: v.nodes.length,
-        targets: v.nodes.map((n) => n.target.join(' ')).slice(0, 5),
-      }));
+        // Zero tolerance for critical/serious accessibility barriers across the application
+        const criticalOrSeriousViolations = results.violations.filter(
+          (v) => v.impact === 'critical' || v.impact === 'serious'
+        );
 
-      expect(
-        criticalOrSeriousViolations,
-        `Detected ${criticalOrSeriousViolations.length} critical/serious WCAG violations:\n${JSON.stringify(diagnosticReport, null, 2)}`
-      ).toEqual([]);
-    });
-  });
+        const diagnosticReport = criticalOrSeriousViolations.map((v) => ({
+          id: v.id,
+          impact: v.impact,
+          description: v.description,
+          helpUrl: v.helpUrl,
+          affectedNodesCount: v.nodes.length,
+          targets: v.nodes.map((n) => n.target.join(' ')).slice(0, 5),
+        }));
+
+        expect(
+          criticalOrSeriousViolations,
+          `Detected ${criticalOrSeriousViolations.length} critical/serious WCAG violations:\n${JSON.stringify(diagnosticReport, null, 2)}`
+        ).toEqual([]);
+      });
+    }
+  );
 
   test('form inputs and interactive controls provide accessible names and labels (WCAG 1.3.1, 4.1.2)', async ({
     page,
