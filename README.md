@@ -22,6 +22,7 @@ It currently runs against two public demo targets (a sample e-commerce storefron
 - [Skills and agents](#skills-and-agents)
 - [Naming conventions](#naming-conventions)
 - [Adapting this to your own application](#adapting-this-to-your-own-application)
+- [Authentication (storageState)](#authentication-storagestate)
 - [Troubleshooting](#troubleshooting)
 - [Recommendations / roadmap](#recommendations--roadmap)
 
@@ -234,16 +235,13 @@ Husky installs a `pre-commit` hook on `npm install`/`npm ci` (via the `prepare` 
 
 ## CI/CD (GitHub Actions)
 
-`.github/workflows/playwright.yml` runs on every push to `main`/`master`, every pull request, and on manual dispatch:
+`.github/workflows/playwright.yml` runs on every push to `main`/`master`, every pull request, and on manual dispatch, as three jobs:
 
-1. Checkout, set up Node 24 (npm cache enabled)
-2. `npm ci`
-3. `npm run check` (the full quality gate)
-4. `npx playwright install --with-deps`
-5. `npm test` (UI + API + Audit)
-6. Upload `playwright-report/` and `test-results/` as a build artifact (14-day retention), even if the run was cancelled
+1. **`check`** — checkout, Node 24, `npm ci`, `npm run check` (the full quality gate). Nothing else runs until this passes.
+2. **`test`** — a 5-way matrix (`ui-chromium`, `ui-firefox`, `ui-webkit`, `api`, `audit`) running in parallel, each installing only the browser binary it actually needs (the `api` leg installs none at all) via a `~/.cache/ms-playwright` cache keyed on `package-lock.json`. Each leg uploads its own `playwright-evidence-<name>` artifact (14-day retention), even if cancelled. `fail-fast: false`, so one suite failing doesn't hide results from the others.
+3. **`independence-check`** — runs the UI suite with `--repeat-each=2 --workers=4 --retries=0`, mechanically proving the "every test runs alone and in any order" claim in `CORE_PRINCIPLES.md` rather than just asserting it.
 
-This is a single sequential job today — no browser-matrix parallelism, no sharding, no browser-binary caching, and the visual suite is intentionally not wired into CI yet (baseline approval is a human step). See [Recommendations](#recommendations--roadmap).
+The visual suite is intentionally still not wired into CI (baseline approval is a human step — see [Recommendations](#recommendations--roadmap)).
 
 ## Docker
 
@@ -339,7 +337,27 @@ This framework is intentionally domain-agnostic at the architecture level (confi
 2. Go through Phase 1 (Explore) against your real app — do not reuse the TestDino/bill-pay scenarios.
 3. Let Phases 2–4 build your own `docs/targets/<yoursite>.md`, page objects, and specs from what Phase 1 actually found.
 4. Delete or archive the demo-specific specs, page objects, and schemas once your own suite covers the same ground.
-5. If your app sits behind authentication, see [Recommendations](#recommendations--roadmap) — `storageState`-based auth setup is the standard Playwright pattern for this and is on the near-term roadmap here.
+5. If your app sits behind authentication, see [Authentication (storageState)](#authentication-storagestate) below.
+
+## Authentication (storageState)
+
+The UI suite supports logging in once per run and reusing the saved session across every test, instead of every test logging in from scratch. This is **dormant by default** — it adds no overhead and changes no behavior for the public demo targets, which need no login.
+
+To activate it, set two environment variables (in `.env` or your shell/CI secrets):
+
+```sh
+AUTH_EMAIL=you@example.com
+AUTH_PASSWORD=your-test-account-password
+```
+
+The moment both are set, `config/playwright.ui.config.ts` automatically registers two extra projects:
+
+- **`setup`** — runs `tests/ui/auth.setup.ts` once: logs in via `page-objects/pages/login.page.ts`, waits for the redirect away from `/login`, and saves the authenticated session to `playwright/.auth/user.json` (gitignored, never committed).
+- **`chromium-authenticated`** — depends on `setup` and injects that saved session via `storageState`. Any spec that needs to be logged in goes in a file named `*.authenticated.spec.ts` under `tests/ui/`; it runs only in this project, never in the anonymous `chromium`/`firefox`/`webkit` projects.
+
+Without `AUTH_EMAIL`/`AUTH_PASSWORD` set, neither project is registered and `auth.setup.ts` isn't even collected — `npm run test:ui` behaves exactly as it does today. If the variables are set but login fails (wrong credentials, account doesn't exist), the setup test fails loudly with a clear error rather than silently producing an empty session.
+
+This pattern (LoginPage object + `*.setup.ts` + conditional project registration) is the one to extend when pointing this framework at your own auth-gated application — write your app's real login flow into `auth.setup.ts` and add `*.authenticated.spec.ts` files for anything that needs a signed-in session.
 
 ## Troubleshooting
 
@@ -359,13 +377,8 @@ The sections above describe what exists today. The items below are my own assess
 **Near-term (structural):**
 
 - Prove the "works for any app" claim by running the full 6-phase process against a second, genuinely different target (e.g. an auth-gated SaaS app), not just a second e-commerce demo.
-- Add a flaky-test policy: a visible quarantine tag, a tracked flake-rate metric per test, and a rule for when a quarantined test gets fixed vs. deleted — currently undefined.
-- Add free CI sharding (`--shard=1/N`) plus Playwright browser-binary caching once suite size justifies it, and wire the visual and audit suites into the pipeline (today only UI/API/Audit run in CI, and visual doesn't run at all).
-- Add a CI job that runs tests in shuffled/repeated order to _prove_ the claimed test independence rather than only asserting it in `CORE_PRINCIPLES.md`.
-
-**Near-term (auth support):**
-
-- Add Playwright's `storageState` pattern for authenticated flows: a setup project that logs in once per run and reuses the saved storage state across tests, instead of logging in inside every test. This is the standard, supported way to make this framework work well against real auth-gated applications, and should be added before the framework is pointed at anything behind a login.
+- Add a flaky-test quarantine mechanism for a test that's unreliable through no one's fault yet, distinct from a confirmed product defect (which already has a rule — see `CORE_PRINCIPLES.md` section 7 "Known defects" and "Eventual consistency"): a visible tag, a tracked flake-rate metric, and a fix-vs-delete rule.
+- Wire the visual suite into CI once a baseline-approval story exists (the `test` matrix currently covers UI/API/audit only).
 
 **Medium-term (governance):**
 
