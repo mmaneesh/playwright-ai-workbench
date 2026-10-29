@@ -11,7 +11,7 @@ export default defineConfig({
   timeout: 30_000,
   reporter: [['list'], ['html', { outputFolder: '../playwright-report/audit', open: 'never' }]],
   use: {
-    baseURL: process.env.UI_BASE_URL || 'https://storedemo.testdino.com',
+    baseURL: process.env.UI_BASE_URL || 'https://www.saucedemo.com',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },

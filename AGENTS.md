@@ -13,6 +13,7 @@ An AI-first Playwright and TypeScript test framework. Any agent, with any model,
 ## Rules that cannot wait
 
 - The decision layer stays with the human. Agents recommend. (D-017)
+- Plan the whole shape of a change and verify load-bearing assumptions before writing multi-file code — never discover them via a failed run. (L-006)
 - Record only what has been agreed. Discussion is not approval. (L-005)
 - Hooks only see direct file edits. `npm run check` is the gate for every agent. (L-003)
 - Every fact has one owner. Reference it; do not copy it. (D-002)

@@ -24,15 +24,16 @@ Simple, direct npm scripts with zero custom wrappers or dynamic runners.
 
 Native Playwright, modular composition, and high-signal diagnostics.
 
-| Area                     | Principle                                                                                     |
-| :----------------------- | :-------------------------------------------------------------------------------------------- |
-| **Dependency Injection** | Tests consume pages and services via `@fixtures`. Never instantiate `new PageObject(page)`.   |
-| **Locators**             | Role-first (`getByRole`, `getByLabel`). Always chain `.describe('purpose')` for clear traces. |
-| **API Contracts**        | Validate all API responses using strict Zod schemas in `types/schemas/`. Zero `any`.          |
-| **Assertions**           | Always use auto-retrying web-first assertions (`await expect(locator).toBeVisible()`).        |
-| **Test Steps**           | Wrap actions and assertions in native `test.step('Action description')`. No Gherkin prefixes. |
-| **Exploration First**    | Inspect the real app (via Playwright CLI / MCP) before writing locators. Never guess.         |
-| **Verification**         | Pass `npm run check` and execute affected tests before considering work done.                 |
+| Area                     | Principle                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| :----------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Dependency Injection** | Tests consume pages and services via `@fixtures`. Never instantiate `new PageObject(page)`.                                                                                                                                                                                                                                                                                                                                                                                           |
+| **Locators**             | Role-first (`getByRole`, `getByLabel`). Always chain `.describe('purpose')` for clear traces.                                                                                                                                                                                                                                                                                                                                                                                         |
+| **API Contracts**        | Validate all API responses using strict Zod schemas in `types/schemas/`. Zero `any`.                                                                                                                                                                                                                                                                                                                                                                                                  |
+| **Assertions**           | Always use auto-retrying web-first assertions (`await expect(locator).toBeVisible()`).                                                                                                                                                                                                                                                                                                                                                                                                |
+| **Test Steps**           | Wrap actions and assertions in native `test.step('Action description')`. No Gherkin prefixes.                                                                                                                                                                                                                                                                                                                                                                                         |
+| **Exploration First**    | Inspect the real app (via Playwright CLI / MCP) before writing locators. Never guess.                                                                                                                                                                                                                                                                                                                                                                                                 |
+| **Verification**         | Pass `npm run check` and execute affected tests before considering work done.                                                                                                                                                                                                                                                                                                                                                                                                         |
+| **Universal checks**     | A check meant to apply to any target (an audit rule, a shared helper) must hold vacuously true when its subject matter doesn't exist on a given target (assert a non-compliant set is empty, not that a positive-count precondition holds first), and must never assume a category of content every target is guaranteed to have. Never reach for `test.skip()` or a conditional to route around a mismatch — both are banned guardrails (see below); redesign the assertion instead. |
 
 ---
 
@@ -40,14 +41,16 @@ Native Playwright, modular composition, and high-signal diagnostics.
 
 Eliminate flakiness, coupling, and maintenance nightmares.
 
-| Anti-Pattern          | Why We Avoid It                                                                         |
-| :-------------------- | :-------------------------------------------------------------------------------------- |
-| **No Hard Sleeps**    | Never use `page.waitForTimeout()`. Rely on auto-waiting assertions.                     |
-| **No XPath**          | Never use `//...` or fragile CSS selector chains. Use semantic accessible locators.     |
-| **No God Objects**    | Never create a monolithic BasePage. Break UI into small components via fixtures.        |
-| **No Pseudo-Gherkin** | Do not write `GIVEN/WHEN/THEN` strings. Write clear, natural action descriptions.       |
-| **No Untyped Data**   | Do not use raw `.json` files. Use typed `.ts` constants (`as const`) or data factories. |
-| **No Speculation**    | Never write code or assertions without live DOM or documented API contracts.            |
+| Anti-Pattern          | Why We Avoid It                                                                                                                                                               |
+| :-------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **No Hard Sleeps**    | Never use `page.waitForTimeout()`. Rely on auto-waiting assertions.                                                                                                           |
+| **No XPath**          | Never use `//...` or fragile CSS selector chains. Use semantic accessible locators.                                                                                           |
+| **No God Objects**    | Never create a monolithic BasePage. Break UI into small components via fixtures.                                                                                              |
+| **No Pseudo-Gherkin** | Do not write `GIVEN/WHEN/THEN` strings. Write clear, natural action descriptions.                                                                                             |
+| **No Untyped Data**   | Do not use raw `.json` files. Use typed `.ts` constants (`as const`) or data factories.                                                                                       |
+| **No Speculation**    | Never write code or assertions without live DOM or documented API contracts.                                                                                                  |
+| **No Skip**           | Never use `test.skip()`. A check that sometimes doesn't apply must be designed to hold vacuously true (see Code Standards: Universal checks), never silently skipped.         |
+| **No Conditional**    | Never use `if`/branching inside a test body. A test's path must be fixed by its setup (fixtures, project config), not decided at runtime by what the page happens to contain. |
 
 ---
 
@@ -105,13 +108,16 @@ Predictable, semantic, and descriptive. Never abbreviate or guess.
 AI works autonomously within bounds, but halts on uncertainty.
 
 1. **Inspect**: Check the live page or API contract first.
-2. **Confidence Gate**: Score plan confidence 1–10. **If confidence < 5, stop and ask the user.**
-3. **Approval Gates**: Always ask before:
+2. **Plan & Verify Assumptions**: Before writing code that touches more than one file or introduces new structure (new page objects, new test projects/config, a new auth pattern, a second target alongside an existing one), state the whole shape of the change first, then spend a minute confirming the load-bearing assumptions it depends on — framework defaults (e.g. Playwright's `testIdAttribute`), shared or global config scope (e.g. one `baseURL` covering every spec in a `testDir`), how new content will coexist with existing content. Verify these directly; do not assume and find out via a failed run. Prefer the simplest design that works over a speculative or conditional mechanism built "to be safe" — a wrong simple design is a smaller fix than discarding a whole parallel mechanism later.
+3. **Confidence Gate**: Score plan confidence 1–10. **If confidence < 5, stop and ask the user.**
+4. **Approval Gates**: Always ask before:
    - Updating visual baseline snapshots.
    - Performing destructive actions on shared environments.
    - Skipping or quarantining failing tests.
    - Modifying core framework configurations.
-4. **Deliver & Verify**: Write clean code, run `npm run check`, run affected tests, and report proof.
+5. **Deliver & Verify**: Write clean code, run `npm run check`, run affected tests, and report proof.
+   - A new Playwright project is not done until a CI job actually runs it. Local pass is not CI coverage — check `.github/workflows/` names the new project explicitly.
+   - A shared-config change or a target removal/rename is not done until: a repo-wide search for the old identifier turns up nothing left to fix, and suites unrelated to the immediate change have been re-run to catch cross-contamination from the shared change.
 
 ---
 

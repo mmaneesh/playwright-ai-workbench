@@ -29,7 +29,7 @@ It currently runs against two public demo targets (a sample e-commerce storefron
 ## What this repo can do
 
 - **Run four independent test suites** against a web app and its API: functional UI/E2E, API contract, visual regression, and accessibility/SEO/web-vitals audits — each with its own Playwright config, browser matrix, and reporter.
-- **Switch target environments atomically** (`dev`, `stg`, `uat`, `prod`, plus the two demo targets `testdino` and `lambdatest`) with one command, no manual `.env` editing.
+- **Switch target environments atomically** (`dev`, `stg`, `uat`, `prod`, plus the demo target `saucedemo` and the archived `lambdatest`) with one command, no manual `.env` editing.
 - **Validate every API response against a strict Zod schema** with zero `any` types, so a contract break fails loudly and typed.
 - **Enforce code-quality rules mechanically**, not just by convention: a custom guardrail checker blocks `waitForTimeout`, XPath selectors, the `any` type, pseudo-Gherkin steps, and raw Playwright imports in UI specs, both as a pre-write hook for AI agents and as a CI gate.
 - **Run everywhere identically**: locally, in Docker (for cross-platform visual consistency), or in GitHub Actions CI.
@@ -38,14 +38,14 @@ It currently runs against two public demo targets (a sample e-commerce storefron
 
 ## Prerequisites
 
-| Requirement                    | Version                                                     | Why                                                                                                                        |
-| :----------------------------- | :---------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------- |
-| [Node.js](https://nodejs.org)  | `>= 22` (repo is pinned to `24` via `.node-version` and CI) | Runtime for Playwright, TypeScript tooling, and all scripts                                                                |
-| npm                            | Bundled with Node                                           | Package manager and script runner                                                                                          |
-| Git                            | Any recent version                                          | Version control, Husky hooks                                                                                               |
-| Internet access                | —                                                           | The demo targets (TestDino store, Gaurav Khurana bill-pay API, JSONPlaceholder-style public APIs) are live public services |
-| Docker (optional)              | Any recent version, with a running Linux engine             | Only needed for `npm run test:visual:docker` or container-based CI parity                                                  |
-| An AI coding client (optional) | Claude Code / Codex / Antigravity                           | Only needed if you want the AI-assisted workflow; running tests needs no AI or API keys                                    |
+| Requirement                    | Version                                                     | Why                                                                                     |
+| :----------------------------- | :---------------------------------------------------------- | :-------------------------------------------------------------------------------------- |
+| [Node.js](https://nodejs.org)  | `>= 22` (repo is pinned to `24` via `.node-version` and CI) | Runtime for Playwright, TypeScript tooling, and all scripts                             |
+| npm                            | Bundled with Node                                           | Package manager and script runner                                                       |
+| Git                            | Any recent version                                          | Version control, Husky hooks                                                            |
+| Internet access                | —                                                           | The demo targets (Sauce Demo, Gaurav Khurana bill-pay API) are live public services     |
+| Docker (optional)              | Any recent version, with a running Linux engine             | Only needed for `npm run test:visual:docker` or container-based CI parity               |
+| An AI coding client (optional) | Claude Code / Codex / Antigravity                           | Only needed if you want the AI-assisted workflow; running tests needs no AI or API keys |
 
 ## Quick start
 
@@ -60,7 +60,7 @@ npm ci
 npx playwright install --with-deps
 
 # 3. Pick a target environment (copies env-config/<name>.env -> .env)
-npm run env:config -- testdino
+npm run env:config -- saucedemo
 
 # 4. Run the full quality gate (lint, format check, typecheck, guardrails, docs check)
 npm run check
@@ -102,15 +102,16 @@ playwright-ai-workbench/
 │   ├── PLAN-LEDGER.md          # What's actually been verified vs. just planned
 │   ├── templates/             # The 6-phase workflow templates + shared vocabulary (README.md)
 │   └── targets/               # One living "workbook" + defect ledger per target application
-├── env-config/                 # Plain .env templates per environment (dev/stg/uat/prod/testdino/lambdatest)
+├── env-config/                 # Plain .env templates per environment (dev/stg/uat/prod/saucedemo/lambdatest)
 ├── fixtures/                   # Composable Playwright fixtures (dependency injection)
 │   ├── ui.fixture.ts           # Injects page objects and components
 │   ├── api.fixture.ts          # Injects an authenticated APIRequestContext
 │   └── index.ts                # Merges ui + api fixtures into one `test`
 ├── helpers/                     # Small shared utilities (e.g. openRoute — navigate + wait for a ready marker)
 ├── page-objects/
-│   ├── pages/                   # One class per page: locators + actions, no assertions
-│   └── components/              # Reusable UI pieces (header, cart drawer, …)
+│   └── pages/                   # One class per page: locators + actions, no assertions
+│       (a components/ folder for reusable UI pieces shared across pages appears
+│       the moment one is needed - none currently is for Sauce Demo)
 ├── scripts/
 │   ├── guardrails/
 │   │   ├── check-rules.ts       # Mechanical anti-pattern checker (also runs as a pre-write AI hook)
@@ -136,15 +137,15 @@ Each Playwright config reads `UI_BASE_URL` / `API_BASE_URL` straight from `proce
 
 | Template                                      | Target                                                                    |
 | :-------------------------------------------- | :------------------------------------------------------------------------ |
-| `env-config/dev.env`                          | TestDino demo store + bill-pay API (default local dev)                    |
-| `env-config/testdino.env`                     | TestDino demo store (primary UI/visual/audit target)                      |
-| `env-config/lambdatest.env`                   | LambdaTest eCommerce Playground (archived UI target)                      |
+| `env-config/dev.env`                          | Sauce Demo + bill-pay API (default local dev)                             |
+| `env-config/saucedemo.env`                    | Sauce Demo (primary UI/visual/audit target)                               |
+| `env-config/lambdatest.env`                   | LambdaTest eCommerce Playground (archived, never exercised by any spec)   |
 | `env-config/stg.env` / `uat.env` / `prod.env` | Placeholder templates — replace the URLs with your own authorized targets |
 
 Switch environments:
 
 ```sh
-npm run env:config -- testdino   # copies env-config/testdino.env -> .env
+npm run env:config -- saucedemo   # copies env-config/saucedemo.env -> .env
 npm run env:config -- stg        # or uat / prod / dev / lambdatest
 ```
 
@@ -198,7 +199,7 @@ Each suite has its own Playwright config under `config/`, its own `test-results/
 
 ### UI (`tests/ui/`, `config/playwright.ui.config.ts`)
 
-Full functional/E2E coverage across **Chromium, Firefox, and WebKit**. Role-first locators (`getByRole`, `getByLabel`), fixture-injected page objects (`@fixtures`), every action/assertion wrapped in `test.step(...)`, and every test tagged with a scenario ID (`SC-00x`) plus a priority (`@smoke`, `@regression`, `@edge`). Currently: 6 tests across `home`, `products`, and `cart` specs.
+Full functional/E2E coverage across **Chromium, Firefox, and WebKit**, against [Sauce Demo](https://www.saucedemo.com) (`tests/ui/saucedemo/`). Role-first locators (`getByRole`) where the target exposes clean accessible names, `data-test`-attribute locators as a documented exception where it doesn't (see `docs/targets/saucedemo.md` 1.7.4), fixture-injected page objects (`@fixtures`), every action/assertion wrapped in `test.step(...)`, and every test tagged with a scenario ID (`SC-00x`) plus a priority (`@smoke`, `@regression`, `@edge`). `login.spec.ts` tests the login flow itself (fresh login per test, by design); everything else that needs a signed-in session uses `*.authenticated.spec.ts` + real `storageState` (see [Authentication](#authentication-storagestate)) instead of repeating login in every file. Currently: 7 scenarios, 22 tests across 7 projects (3 anonymous browsers + `setup` + 3 authenticated browsers).
 
 ### API (`tests/api/`, `config/playwright.api.config.ts`)
 
@@ -206,15 +207,15 @@ Pure `APIRequestContext`-based contract tests against the bill-pay demo API: hea
 
 ### Visual (`tests/visual/`, `config/playwright.visual.config.ts`)
 
-Snapshot regression across **desktop (1280×720), tablet (iPad), and mobile (iPhone 14)** viewports, with `maxDiffPixelRatio: 0.02` / `threshold: 0.05` tolerances and animations disabled for determinism. **Opt-in and excluded from `npm test`** because baseline snapshots need a human-approved first run and are platform/font-rendering sensitive — run it explicitly, and prefer the Docker variant (`npm run test:visual:docker`) for reproducible baselines across machines. Currently: 1 spec (`home`), scaffolded for expansion.
+Snapshot regression, configured for **desktop (1280×720), tablet (iPad), and mobile (iPhone 14)** viewports, with `maxDiffPixelRatio: 0.02` / `threshold: 0.05` tolerances and animations disabled for determinism. **Opt-in and excluded from `npm test`** because baseline snapshots need a human-approved first run and are platform/font-rendering sensitive — run it explicitly, and prefer the Docker variant (`npm run test:visual:docker`) for reproducible baselines across machines. Currently: no specs (deliberately out of scope for Sauce Demo — see `docs/targets/saucedemo.md` Section 2.1); the config and `npm run test:visual` command are ready the moment a spec is added.
 
 ### Audit (`tests/audit/`, `config/playwright.audit.config.ts`)
 
-Three domain-agnostic checks that work on virtually any web page without app-specific locators:
+Domain-agnostic checks that work on virtually any web page without app-specific locators — deliberately conservative about what counts as a universal requirement, not just what happened to be true of one target (see `docs/targets/saucedemo.md` Section 5 for how this was found and fixed):
 
 - **Accessibility** — full `@axe-core/playwright` scan (WCAG 2.1 A/AA + 2.1 A/AA rule sets), zero rule suppressions.
 - **Web Vitals** — LCP, CLS, FCP, TTFB via the browser's native `PerformanceObserver`, checked against budgets.
-- **SEO** — title/meta description/viewport/Open Graph presence, image `alt` coverage, below-the-fold lazy-loading.
+- **SEO** — title/meta description/viewport, image `alt` coverage, below-the-fold lazy-loading (vacuously true when a page has no below-fold images, e.g. a login form). Open Graph metadata is intentionally **not** asserted: it's good practice for a shareable public page, not a universal requirement — a page can legitimately opt out via `<meta name="robots" content="noindex">`.
 
 Currently: 7 tests. Note axe-core catches a meaningful but partial slice of real-world accessibility issues — it is not a substitute for a manual keyboard-navigation pass on critical journeys.
 
@@ -334,30 +335,20 @@ Full rules, including test-structure conventions (one scenario per test, `test.d
 This framework is intentionally domain-agnostic at the architecture level (configs, guardrails, CI shape, the 6-phase process, the generic audit suite) but **not** magically portable at the test level — swapping `UI_BASE_URL`/`API_BASE_URL` alone does not adapt page objects, locators, or scenarios to a different application. To point this at your own app:
 
 1. Run `npm run env:config -- stg` (or add a new `env-config/<yourenv>.env`) and set real URLs.
-2. Go through Phase 1 (Explore) against your real app — do not reuse the TestDino/bill-pay scenarios.
+2. Go through Phase 1 (Explore) against your real app — do not reuse the Sauce Demo/bill-pay scenarios.
 3. Let Phases 2–4 build your own `docs/targets/<yoursite>.md`, page objects, and specs from what Phase 1 actually found.
 4. Delete or archive the demo-specific specs, page objects, and schemas once your own suite covers the same ground.
 5. If your app sits behind authentication, see [Authentication (storageState)](#authentication-storagestate) below.
 
 ## Authentication (storageState)
 
-The UI suite supports logging in once per run and reusing the saved session across every test, instead of every test logging in from scratch. This is **dormant by default** — it adds no overhead and changes no behavior for the public demo targets, which need no login.
+Sauce Demo is entirely auth-gated — nothing works without logging in first — so the UI suite logs in **once** and reuses that session everywhere else, instead of every test repeating the login flow and its credentials.
 
-To activate it, set two environment variables (in `.env` or your shell/CI secrets):
+- **`tests/ui/saucedemo/auth.setup.ts`** — runs once per suite execution: logs in as `standard_user` via `page-objects/pages/saucedemo-login.page.ts` (credentials from `test-data/saucedemo-accounts.data.ts` — published by Sauce Labs for exactly this purpose, safe to commit), waits for the redirect to `/inventory.html`, and saves the session to `playwright/.auth/user.json` (gitignored, never committed). This runs unconditionally; there is nothing to gate, since the credentials are public.
+- **`chromium-authenticated` / `firefox-authenticated` / `webkit-authenticated`** — each depends on `setup` and injects the saved session via `storageState` (one login covers all three browser engines, since `storageState` is just serialized cookies/origin storage). Any spec that needs to already be logged in goes in a file named `*.authenticated.spec.ts`; it runs only in these projects, never in the anonymous `chromium`/`firefox`/`webkit` ones.
+- **`tests/ui/saucedemo/login.spec.ts`** is the one file that deliberately does **not** use this pattern — its whole job is testing the login flow itself (`SC-001` valid login, `SC-002` locked-out account), so it logs in fresh inside each test by design, not as an oversight.
 
-```sh
-AUTH_EMAIL=you@example.com
-AUTH_PASSWORD=your-test-account-password
-```
-
-The moment both are set, `config/playwright.ui.config.ts` automatically registers two extra projects:
-
-- **`setup`** — runs `tests/ui/auth.setup.ts` once: logs in via `page-objects/pages/login.page.ts`, waits for the redirect away from `/login`, and saves the authenticated session to `playwright/.auth/user.json` (gitignored, never committed).
-- **`chromium-authenticated`** — depends on `setup` and injects that saved session via `storageState`. Any spec that needs to be logged in goes in a file named `*.authenticated.spec.ts` under `tests/ui/`; it runs only in this project, never in the anonymous `chromium`/`firefox`/`webkit` projects.
-
-Without `AUTH_EMAIL`/`AUTH_PASSWORD` set, neither project is registered and `auth.setup.ts` isn't even collected — `npm run test:ui` behaves exactly as it does today. If the variables are set but login fails (wrong credentials, account doesn't exist), the setup test fails loudly with a clear error rather than silently producing an empty session.
-
-This pattern (LoginPage object + `*.setup.ts` + conditional project registration) is the one to extend when pointing this framework at your own auth-gated application — write your app's real login flow into `auth.setup.ts` and add `*.authenticated.spec.ts` files for anything that needs a signed-in session.
+To point this framework at your own auth-gated application: write its real login flow into a new `*.setup.ts` file (following `auth.setup.ts`'s shape), read its real credentials from environment variables instead of a committed constants file, and add `*.authenticated.spec.ts` files for anything that needs a signed-in session. If login fails (wrong credentials, account locked), the setup test fails loudly with a clear error rather than silently producing an empty session.
 
 ## Troubleshooting
 
@@ -376,15 +367,12 @@ The sections above describe what exists today. The items below are my own assess
 
 **Near-term (structural):**
 
-- Prove the "works for any app" claim by running the full 6-phase process against a second, genuinely different target (e.g. an auth-gated SaaS app), not just a second e-commerce demo.
 - Add a flaky-test quarantine mechanism for a test that's unreliable through no one's fault yet, distinct from a confirmed product defect (which already has a rule — see `CORE_PRINCIPLES.md` section 7 "Known defects" and "Eventual consistency"): a visible tag, a tracked flake-rate metric, and a fix-vs-delete rule.
 - Wire the visual suite into CI once a baseline-approval story exists (the `test` matrix currently covers UI/API/audit only).
 
 **Medium-term (governance):**
 
-- Reconcile the stale `docs/LOG.md` decision that review findings live in "Bitbucket now, GitHub later" — CI already runs on GitHub Actions.
 - Move the guardrail checker from regex-based matching to an AST-based check (e.g. `ts-morph`) as the ruleset grows, to avoid false positives/negatives in string literals and reformatted code.
-- Add a mechanical check that every agent's declared tool names actually resolve against the configured MCP servers (a past failure — see `L-001` in `docs/LOG.md` — showed this isn't yet caught automatically).
 
 **Longer-term (maturity):**
 
