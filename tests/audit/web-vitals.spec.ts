@@ -41,31 +41,29 @@ test.describe('Universal Core Web Vitals Audit', { tag: '@audit' }, () => {
     });
 
     await test.step('Collect browser Performance Timeline metrics', async () => {
-      const metrics = await page.evaluate(() => {
-        const navEntries = performance.getEntriesByType('navigation');
-        const navTiming = navEntries[0] as PerformanceNavigationTiming | undefined;
-
-        const fcpEntry = performance.getEntriesByName('first-contentful-paint')[0];
-        const fcp = fcpEntry ? fcpEntry.startTime : 0;
-
-        const ttfb = navTiming ? navTiming.responseStart - navTiming.requestStart : 0;
-        const domContentLoaded = navTiming
-          ? navTiming.domContentLoadedEventEnd - navTiming.startTime
-          : 0;
-
-        return {
-          fcp: Math.round(fcp),
-          ttfb: Math.round(ttfb),
-          domContentLoaded: Math.round(domContentLoaded),
-        };
-      });
-
-      // Collect buffered LCP and CLS entries via PerformanceObserver
+      // Collect buffered FCP, LCP and CLS entries via PerformanceObserver. All three
+      // can land after 'load' (confirmed in headless Chromium against the live target),
+      // so give them the same settle window instead of reading synchronously.
       const webVitals = await page.evaluate(async () => {
+        let fcpValue = Number.POSITIVE_INFINITY;
         let lcpValue = 0;
         let clsValue = 0;
 
         try {
+          const fcpPromise = new Promise<number>((resolve) => {
+            let fcp = Number.POSITIVE_INFINITY;
+            const observer = new PerformanceObserver((entryList) => {
+              const entry = entryList.getEntriesByName('first-contentful-paint')[0];
+              if (entry) fcp = entry.startTime;
+            });
+            observer.observe({ type: 'paint', buffered: true });
+
+            setTimeout(() => {
+              observer.disconnect();
+              resolve(Math.round(fcp));
+            }, 2000);
+          });
+
           const lcpPromise = new Promise<number>((resolve) => {
             let maxLcp = 0;
             const observer = new PerformanceObserver((entryList) => {
@@ -75,10 +73,12 @@ test.describe('Universal Core Web Vitals Audit', { tag: '@audit' }, () => {
             });
             observer.observe({ type: 'largest-contentful-paint', buffered: true });
 
-            requestAnimationFrame(() => {
+            // LCP finalizes on user input or page hide; absent either, settle for a
+            // fixed window so later, larger paints are captured instead of the first frame.
+            setTimeout(() => {
               observer.disconnect();
               resolve(Math.round(maxLcp));
-            });
+            }, 2000);
           });
 
           const clsPromise = new Promise<number>((resolve) => {
@@ -97,24 +97,24 @@ test.describe('Universal Core Web Vitals Audit', { tag: '@audit' }, () => {
             });
             observer.observe({ type: 'layout-shift', buffered: true });
 
-            requestAnimationFrame(() => {
+            setTimeout(() => {
               observer.disconnect();
               resolve(Math.round(shiftScore * 1000) / 1000);
-            });
+            }, 2000);
           });
 
+          fcpValue = await fcpPromise;
           lcpValue = await lcpPromise;
           clsValue = await clsPromise;
         } catch {
           // If browser does not support specific observer, fallback gracefully
         }
 
-        return { lcp: lcpValue, cls: clsValue };
+        return { fcp: fcpValue, lcp: lcpValue, cls: clsValue };
       });
 
       // Validate against acceptable budgets
-      // Note: In synthetic testing with variable network conditions, we verify
-      expect(metrics.fcp, 'First Contentful Paint (FCP) must be under 4000ms').toBeLessThan(4000);
+      expect(webVitals.fcp, 'First Contentful Paint (FCP) must be under 4000ms').toBeLessThan(4000);
 
       expect(
         webVitals.lcp,

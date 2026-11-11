@@ -26,8 +26,12 @@ test.describe('Checkout', () => {
         await saucedemoCheckoutPage.continueToOverview();
       });
 
-      await test.step('Verify the order total and finish', async () => {
-        await expect(saucedemoCheckoutPage.totalLabel).toContainText('Total:');
+      await test.step('Verify the order total equals item price + tax, then finish', async () => {
+        const parseAmount = (text: string) => Number.parseFloat(text.replace(/[^0-9.]/g, ''));
+        const subtotal = parseAmount(await saucedemoCheckoutPage.subtotalLabel.innerText());
+        const tax = parseAmount(await saucedemoCheckoutPage.taxLabel.innerText());
+        const total = parseAmount(await saucedemoCheckoutPage.totalLabel.innerText());
+        expect(total).toBeCloseTo(subtotal + tax, 2);
         await saucedemoCheckoutPage.finish();
       });
 
