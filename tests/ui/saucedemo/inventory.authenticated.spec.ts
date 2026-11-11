@@ -16,6 +16,7 @@ test.describe('Inventory sorting', () => {
 
       await test.step('Verify the prices are ascending', async () => {
         const priceTexts = await saucedemoInventoryPage.productPrices.allTextContents();
+        expect(priceTexts.length, 'inventory must list at least one product').toBeGreaterThan(0);
         const prices = priceTexts.map((text) => Number.parseFloat(text.replace('$', '')));
         const sorted = [...prices].sort((a, b) => a - b);
         expect(prices).toEqual(sorted);

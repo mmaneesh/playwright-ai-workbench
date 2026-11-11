@@ -106,6 +106,30 @@ TestDino Demo Store was removed as a target on 2026-10-29 (all files, config and
 
 ---
 
+## Punch List — 2026-10-29 Review Findings (Fixed 2026-10-29)
+
+Found during an external review of the Sauce Demo build-out, verified against the actual code before being recorded here (none of these are assumed). Ordered by actual severity, not discovery order. The High/Medium items below were fixed and re-verified (`npm run check` + live `saucedemo` runs) the same day.
+
+**High — correctness bugs that let real regressions pass silently:**
+
+- [x] ~~`tests/audit/web-vitals.spec.ts` — FCP falls back to `0` when no entry is found...~~ Fixed: FCP, LCP and CLS are now all read from `PerformanceObserver`s with a real 2s settle window (confirmed live that `first-contentful-paint` on this target can land ~2.5s after `load` in headless Chromium); a missing FCP entry now fails the assertion instead of silently passing.
+- [x] ~~`.github/workflows/playwright.yml` `independence-check` job — runs `--project=chromium --repeat-each=2`...~~ Fixed: job now also runs `--project=chromium-authenticated`. Verified locally that `--repeat-each` runs the `setup` dependency once and repeats only the authenticated project's own tests, so this covers cart/checkout state without re-running login N times.
+
+**Medium — weak assertions / stale docs:**
+
+- [x] ~~`tests/ui/saucedemo/inventory.authenticated.spec.ts` (`SC-007` sort test) — passes vacuously on an empty array.~~ Fixed: added an explicit non-empty assertion before the sort comparison.
+- [x] ~~`tests/ui/saucedemo/checkout.authenticated.spec.ts` (`SC-005`) — only asserts `toContainText('Total:')`.~~ Fixed: now parses `subtotal-label`/`tax-label`/`total-label` and asserts total equals item total + tax.
+- [x] ~~`README.md:242` — still says "5-way matrix"...~~ Fixed: now says "8-way matrix" with all legs named; roadmap line corrected to note checkout/cart are covered, only visual is not.
+- [x] ~~`docs/targets/saucedemo.md` Section 5 (Evidence) — still says "18 of 18 passed"...~~ Fixed: re-ran the live suite (22 tests, 22 passed incl. `SC-006` as an expected known-defect failure on all 3 authenticated browsers) and rewrote Section 5 from that real run.
+
+**Already known, not new — still open from before:**
+
+- [ ] Visual suite has zero specs (`tests/visual/`) — deliberately out of scope for this target so far, config is ready.
+- [ ] Backend data isolation/cleanup for the BillPay API suite (`tests/api/billing-lifecycle.spec.ts`) — stateful test data with no visible teardown.
+- [ ] Config validation and framework self-tests (demo-fallback behavior, Docker credential propagation, regression tests for the custom guardrail/docs checkers) — general maturity gap, not yet started.
+
+---
+
 ## Remaining Phases (Pending Individual Approval)
 
 ### Phase 2 — Quality and Configuration Hardening

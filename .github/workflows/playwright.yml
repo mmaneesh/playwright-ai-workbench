@@ -110,6 +110,10 @@ jobs:
       - name: Repeat each UI test under high parallelism to catch shared-state leakage
         # CORE_PRINCIPLES.md claims every test "runs alone and in any order"; this job is
         # the mechanical check for that claim rather than an unverified assertion.
+        # chromium-authenticated depends on "setup"; --repeat-each runs that dependency
+        # once and only repeats the authenticated project's own tests (verified locally),
+        # so cart/checkout state is covered too, not just the unauthenticated login flow.
         run: >-
-          npx playwright test --config=config/playwright.ui.config.ts --project=chromium
+          npx playwright test --config=config/playwright.ui.config.ts
+          --project=chromium --project=chromium-authenticated
           --repeat-each=2 --workers=4 --retries=0

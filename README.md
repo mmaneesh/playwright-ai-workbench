@@ -239,7 +239,7 @@ Husky installs a `pre-commit` hook on `npm install`/`npm ci` (via the `prepare` 
 `.github/workflows/playwright.yml` runs on every push to `main`/`master`, every pull request, and on manual dispatch, as three jobs:
 
 1. **`check`** — checkout, Node 24, `npm ci`, `npm run check` (the full quality gate). Nothing else runs until this passes.
-2. **`test`** — a 5-way matrix (`ui-chromium`, `ui-firefox`, `ui-webkit`, `api`, `audit`) running in parallel, each installing only the browser binary it actually needs (the `api` leg installs none at all) via a `~/.cache/ms-playwright` cache keyed on `package-lock.json`. Each leg uploads its own `playwright-evidence-<name>` artifact (14-day retention), even if cancelled. `fail-fast: false`, so one suite failing doesn't hide results from the others.
+2. **`test`** — an 8-way matrix (`ui-chromium`, `ui-firefox`, `ui-webkit`, `api`, `audit`, `ui-chromium-authenticated`, `ui-firefox-authenticated`, `ui-webkit-authenticated`) running in parallel, each installing only the browser binary it actually needs (the `api` leg installs none at all) via a `~/.cache/ms-playwright` cache keyed on `package-lock.json`. Each leg uploads its own `playwright-evidence-<name>` artifact (14-day retention), even if cancelled. `fail-fast: false`, so one suite failing doesn't hide results from the others.
 3. **`independence-check`** — runs the UI suite with `--repeat-each=2 --workers=4 --retries=0`, mechanically proving the "every test runs alone and in any order" claim in `CORE_PRINCIPLES.md` rather than just asserting it.
 
 The visual suite is intentionally still not wired into CI (baseline approval is a human step — see [Recommendations](#recommendations--roadmap)).
@@ -368,7 +368,7 @@ The sections above describe what exists today. The items below are my own assess
 **Near-term (structural):**
 
 - Add a flaky-test quarantine mechanism for a test that's unreliable through no one's fault yet, distinct from a confirmed product defect (which already has a rule — see `CORE_PRINCIPLES.md` section 7 "Known defects" and "Eventual consistency"): a visible tag, a tracked flake-rate metric, and a fix-vs-delete rule.
-- Wire the visual suite into CI once a baseline-approval story exists (the `test` matrix currently covers UI/API/audit only).
+- Wire the visual suite into CI once a baseline-approval story exists (the `test` matrix currently covers UI/API/audit, including authenticated checkout/cart flows, but not visual).
 
 **Medium-term (governance):**
 

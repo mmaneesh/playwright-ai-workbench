@@ -370,30 +370,30 @@ The code is the specification (`CORE_PRINCIPLES.md`). Locator choices and except
 
 ### 5.1 Run Record
 
-Two runs, both via `npx playwright test --config=config/playwright.ui.config.ts tests/ui/saucedemo`, `UI_BASE_URL` set to `https://www.saucedemo.com` (`npm run env:config -- saucedemo`). No code was edited between the second run's result and this write-up, per `D-016`.
+Rewritten after the 2026-10-29 review found this section stale (file renames and a 3x browser-matrix expansion had happened since the last write-up). Fresh run via `npx playwright test --config=config/playwright.ui.config.ts tests/ui/saucedemo`, `UI_BASE_URL` set to `https://www.saucedemo.com` (`npm run env:config -- saucedemo`). No code was edited between this run and this write-up, per `D-016`.
 
-**Run 1** (initial): 14 of 18 failed. Root cause: every page object used `page.getByTestId(...)`, which targets Playwright's default `data-testid` attribute — this site uses `data-test` (confirmed live), so every id-based locator silently matched nothing. This was caught and fixed before any defect was (mis)attributed to the site; see 5.2.
+**Current discovery**: 22 tests across 5 files (`login.spec.ts` x2 scenarios on `chromium`/`firefox`/`webkit`; `auth.setup.ts`; `cart.authenticated.spec.ts`, `checkout.authenticated.spec.ts`, `inventory.authenticated.spec.ts` x4 scenarios on `chromium-authenticated`/`firefox-authenticated`/`webkit-authenticated`, each depending on the single `setup` project run).
 
-**Run 2** (after the locator fix, below): **18 of 18 passed** (`SC-006` passes as an expected failure via `test.fail()`, per its known-defect handling). Includes a real, successful login with the published `standard_user` credentials and a verified `storageState` save (`saucedemo-setup` project) — the first time this repo's `storageState` auth pattern has been proven end-to-end with working credentials, rather than only verified mechanically against a form with no valid account (as with TestDino).
+**Result: 22 of 22 passed** (`SC-006` passes as an expected failure via `test.fail()`, on all three authenticated projects, per its known-defect handling).
 
 ```text
-18 passed (32.2s)
-  [saucedemo-setup] authenticate as standard_user and save storage state ✓
-  [saucedemo-chromium-authenticated] SC-005 a full checkout completes and reaches the confirmation page ✓
-  [saucedemo-chromium-authenticated] SC-006 pressing Enter on checkout step one does not cancel the order ✘ (expected - DEF-001)
+22 passed (1.0m)
+  [setup] authenticate as standard_user and save storage state ✓
+  [chromium-authenticated] SC-006 pressing Enter on checkout step one does not cancel the order ✘ (expected - DEF-001)
+  [firefox-authenticated] SC-006 pressing Enter on checkout step one does not cancel the order ✘ (expected - DEF-001)
+  [webkit-authenticated] SC-006 pressing Enter on checkout step one does not cancel the order ✘ (expected - DEF-001)
 ```
 
 ### 5.2 Triage
 
-| Scenario / test                                                 | Result                                             | Triage classification | Notes                                                                                                                                                                      |
-| :-------------------------------------------------------------- | :------------------------------------------------- | :-------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `SC-001`, `SC-003`, `SC-004`, `SC-007`, `auth.setup.ts` (Run 1) | Failed                                             | Test issue            | `getByTestId()` targets `data-testid`, not this site's `data-test`; fixed by switching to explicit `page.locator('[data-test="..."]')` in all four Sauce Demo page objects |
-| `SC-002` (Run 1)                                                | Passed                                             | n/a                   | Uses `getByRole('alert')`, unaffected by the attribute mismatch — this is why it was the one test that passed in Run 1, which is what first narrowed the diagnosis         |
-| All 7 scenarios (Run 2)                                         | Passed (`SC-006` as expected known-defect failure) | n/a                   | Clean run, no further triage needed                                                                                                                                        |
+| Scenario / test                         | Result                             | Triage classification | Notes                                                                                         |
+| :-------------------------------------- | :--------------------------------- | :-------------------- | :-------------------------------------------------------------------------------------------- |
+| All scenarios except `SC-006`           | Passed                             | n/a                   | Clean run across chromium/firefox/webkit, unauthenticated and authenticated, no triage needed |
+| `SC-006` (all 3 authenticated projects) | Failed as expected (`test.fail()`) | Known defect          | Reproduces `DEF-001`; counted as passing by Playwright's own-defect accounting                |
 
 ### 5.3 Defects Raised This Phase
 
-None new. `DEF-001` (found in Phase 1, scenario-ized in Phase 2) is confirmed reproducible by `SC-006`'s automated test, still `Open` pending a product-side fix — automation now catches it on every run instead of relying on manual rediscovery.
+None new. `DEF-001` (found in Phase 1, scenario-ized in Phase 2) is confirmed reproducible by `SC-006`'s automated test on all three browsers, still `Open` pending a product-side fix — automation now catches it on every run instead of relying on manual rediscovery.
 
 ---
 

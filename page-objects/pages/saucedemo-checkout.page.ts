@@ -8,6 +8,8 @@ export class SaucedemoCheckoutPage {
   readonly postalCodeInput: Locator;
   readonly continueButton: Locator;
   readonly finishButton: Locator;
+  readonly subtotalLabel: Locator;
+  readonly taxLabel: Locator;
   readonly totalLabel: Locator;
   readonly completeHeader: Locator;
 
@@ -24,6 +26,8 @@ export class SaucedemoCheckoutPage {
     // data-test, not data-testid - see saucedemo-inventory.page.ts for why getByTestId() won't work here.
     this.continueButton = page.locator('[data-test="continue"]').describe('continue button');
     this.finishButton = page.locator('[data-test="finish"]').describe('finish button');
+    this.subtotalLabel = page.locator('[data-test="subtotal-label"]').describe('item subtotal');
+    this.taxLabel = page.locator('[data-test="tax-label"]').describe('order tax');
     this.totalLabel = page.locator('[data-test="total-label"]').describe('order total');
     this.completeHeader = page
       .locator('[data-test="complete-header"]')
