@@ -99,8 +99,20 @@ structural requirement, not a hope:
   The failure mode being guarded against is silent, unexplained partial work -
   not an agent that occasionally has to ask a human something (that is bounded
   autonomy working as intended, not a failure).
+- **A stage proves it met its Done criteria by reporting a confidence score
+  against them, not by asserting "done."** Rubric in
+  `docs/templates/README.md`. `Confidence >= 8` and `Unknowns: none` is the
+  only combination that counts as done without flagging for review -
+  anything else is that stage's stop condition, made visible instead of left
+  to prose a reviewer might skim past.
 
 ## 4. Definition of Done, per stage
+
+Every stage below also reports a confidence score against its own Done
+criteria, using the rubric in `docs/templates/README.md` - omitted per stage
+here to avoid repeating it six times. `Confidence >= 8` and `Unknowns: none`
+is what "Done" actually means; anything less is that stage's own
+stop-and-ask condition made visible.
 
 ### Stage 0 - Intake
 

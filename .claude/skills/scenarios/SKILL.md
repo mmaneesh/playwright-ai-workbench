@@ -51,3 +51,6 @@ only the user has - name the specific unknown.
 expected results; every data value is concrete, not a placeholder.
 **Stage 3 stop and ask when**: an expected result can't be determined from the
 live target or a documented contract - report the gap.
+
+Score confidence for each stage against its Done criteria, using the rubric
+in `docs/templates/README.md`, before reporting either stage as done.

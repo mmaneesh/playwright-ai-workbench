@@ -57,6 +57,9 @@ itself the finding - report it and stop.
 - Assertions weakened to get a green run.
 - Scope beyond the scenarios actually approved.
 
-5. Report: findings by area (cite file:line), a recommended verdict
-   (`Approved` only with zero blocking findings), and the real check output
-   quoted. State the verdict is a recommendation - the human decides.
+5. Score confidence against Stage 5's Done criteria (`INTENT.md` §4), using
+   the rubric in `docs/templates/README.md`.
+6. Report: findings by area (cite file:line), a recommended verdict
+   (`Approved` only with zero blocking findings), the real check output
+   quoted, and the confidence block. State the verdict is a recommendation -
+   the human decides.

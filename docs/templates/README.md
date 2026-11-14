@@ -121,6 +121,40 @@ write-up depth that actually needs.
 `Product defect`, `Known defect` (an expected failure tied to an open `DEF-ID`),
 `Test issue`, `Environment or data issue`, `Flaky`, `Unclear`.
 
+## Confidence rubric
+
+Every stage ends by reporting this block before stating it's done
+(`INTENT.md` §3, §4):
+
+```
+## Confidence
+- Confidence: <1-10>
+- Unknowns: <specific list, or "none">
+- Rationale: <one line per factor that applied>
+```
+
+**Confidence** is scored against _that stage's own Definition of Done_
+(`INTENT.md` §4) - not a feeling:
+
+| Band   | Score  | Requires                                                                                                                                                                                                                                                                                                     |
+| :----- | :----- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| High   | `8-10` | Every Done-criterion met by direct observation (the live target, real run output, a documented contract) - nothing inferred or assumed. `10` only if a re-run would reproduce the same result; `8-9` allows one defensible judgement call (e.g. a priority rating) that doesn't change the underlying facts. |
+| Medium | `5-7`  | Every Done-criterion met, but at least one came from inference rather than direct observation, or one open question exists that a human should see - without blocking the write-up.                                                                                                                          |
+| Low    | `2-4`  | At least one Done-criterion was skipped, assumed, or couldn't be checked.                                                                                                                                                                                                                                    |
+| Failed | `1`    | The stage's own Stop-and-ask condition actually fired - the stage did not complete.                                                                                                                                                                                                                          |
+
+**Unknowns**: name the specific missing fact - "whether `DEF-002` also affects
+the cart page, not checked," never "some uncertainty remains."
+
+**Rationale**: one line per factor that actually applied, each citing which
+Done-criterion, which observation, or which assumption drove it - not a
+general impression ("looks solid").
+
+**The gate**: `Confidence >= 8` **and** `Unknowns: none` is the only
+combination that counts as "Done" without flagging for review. Anything else
+is, functionally, that stage's existing Stop-and-ask condition - surfaced
+through this rubric instead of left to prose that's easy to skim past.
+
 ## External systems
 
 The framework is tool-neutral. A team's own tool (Jira, TestRail, a GitHub

@@ -45,3 +45,6 @@ relevant guardrail.
 **Stop and ask when**: a test can't be made deterministic because of something
 real in the target or environment - report the flake pattern; never mask it
 with a retry or a sleep.
+
+Score confidence against the Done criteria above, using the rubric in
+`docs/templates/README.md`, before reporting done.

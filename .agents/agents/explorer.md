@@ -87,6 +87,8 @@ complete.
 
 ## Report
 
-Under 300 words: scope, what was and wasn't explored, defects logged, open
-questions. Write findings into `specs/<target>.plan.md`, not a separate
+Score confidence against the Done criteria above, using the rubric in
+`docs/templates/README.md`, before reporting. Under 300 words: scope, what
+was and wasn't explored, defects logged, open questions, and the confidence
+block. Write findings into `specs/<target>.plan.md`, not a separate
 workbook section.
