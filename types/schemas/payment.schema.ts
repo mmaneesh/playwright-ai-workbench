@@ -17,6 +17,12 @@ export const PaymentMethodListResponseSchema = z.object({
   meta: MetaSchema.optional(),
 });
 
+export const PaymentMethodResponseSchema = z.object({
+  success: z.boolean(),
+  data: PaymentMethodSchema,
+  meta: MetaSchema.optional(),
+});
+
 export const PaymentSchema = z.object({
   id: z.string(),
   billId: z.string(),
@@ -39,3 +45,4 @@ export type Payment = z.infer<typeof PaymentSchema>;
 export type PaymentResponse = z.infer<typeof PaymentResponseSchema>;
 export type PaymentMethod = z.infer<typeof PaymentMethodSchema>;
 export type PaymentMethodListResponse = z.infer<typeof PaymentMethodListResponseSchema>;
+export type PaymentMethodResponse = z.infer<typeof PaymentMethodResponseSchema>;

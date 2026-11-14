@@ -2,19 +2,20 @@ import { test, expect } from '@fixtures';
 import { BillerListResponseSchema } from '../../types/schemas/biller.schema';
 import { BillSingleResponseSchema } from '../../types/schemas/bill.schema';
 import {
-  PaymentMethodListResponseSchema,
+  PaymentMethodResponseSchema,
   PaymentResponseSchema,
 } from '../../types/schemas/payment.schema';
 
 test(
-  'end-to-end response chaining: discover biller -> create bill -> fetch payment method -> execute payment -> verify bill paid status',
+  'end-to-end response chaining: discover biller -> create bill -> verify payment method -> execute payment -> verify bill paid status',
   { tag: '@api' },
-  async ({ authedRequest }) => {
+  async ({ authedRequest, isolatedUser }) => {
     let billerId = '';
     let billId = '';
-    let paymentMethodId = '';
     let paymentId = '';
+    const { userId, paymentMethodId } = isolatedUser;
     const billAmount = 499;
+    const dueDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
     await test.step('Discover available billers and select an active provider', async () => {
       const response = await authedRequest.get('/v1/billers', { params: { limit: 1 } });
@@ -26,15 +27,15 @@ test(
       expect(billerId).toBeTruthy();
     });
 
-    await test.step('Create a new pending bill for the selected biller', async () => {
+    await test.step('Create a new pending bill for the isolated user', async () => {
       const response = await authedRequest.post('/v1/bills', {
         data: {
-          userId: 'user-demo-001',
+          userId,
           billerId,
           customerIdentifier: '9876543210',
           customerName: 'Workbench Automation User',
           amount: billAmount,
-          dueDate: '2026-12-31',
+          dueDate,
         },
       });
 
@@ -46,16 +47,17 @@ test(
       expect(billId).toBeTruthy();
     });
 
-    await test.step('Fetch active payment methods for the user', async () => {
-      const response = await authedRequest.get('/v1/payment-methods', {
-        params: { userId: 'user-demo-001' },
-      });
+    await test.step("Verify the isolated user's payment method is active", async () => {
+      // /v1/payment-methods?userId=... does not filter server-side (verified
+      // live against the real API), so the list endpoint can't be trusted to
+      // scope by user. Fetching by id, as created in the isolatedUser fixture,
+      // is the only reliable way to confirm it is still active before paying.
+      const response = await authedRequest.get(`/v1/payment-methods/${paymentMethodId}`);
       expect(response.status()).toBe(200);
 
-      const parsed = PaymentMethodListResponseSchema.parse(await response.json());
-      expect(parsed.data.length).toBeGreaterThan(0);
-      paymentMethodId = parsed.data[0].id;
-      expect(paymentMethodId).toBeTruthy();
+      const parsed = PaymentMethodResponseSchema.parse(await response.json());
+      expect(parsed.data.userId).toBe(userId);
+      expect(parsed.data.isActive).toBe(true);
     });
 
     await test.step('Execute payment for the newly created bill', async () => {
