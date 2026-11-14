@@ -33,6 +33,10 @@ where a real decision is being made.
 - `INTENT.md`: what this project is for and why - the final word if anything
   here conflicts with it.
 - `PLAN.md`: the concrete, phased build plan derived from `INTENT.md`.
+- `docs/PLAN-LEDGER.md`: progress against that plan, one checkbox per item,
+  struck through only once verified. Update it in the same commit as the
+  work - a checklist that falls behind is worse than none, because a reader
+  has no sign that it's lying.
 - `CORE_PRINCIPLES.md`: code standards, guardrails, commands, folder structure.
 - `docs/templates/README.md`: shared vocabulary (IDs, priority, SFDIPOT, the
   tours, the 11 oracles, test techniques, defect severity/status).
