@@ -122,6 +122,53 @@ function checkConfidenceBlocks(): void {
   }
 }
 
+// Per INTENT.md §2: a target's origin must be allowed before the browser MCP
+// server can navigate there, and a config that lingers with a removed
+// target's origin is itself a stale, orphaned entry nobody would notice.
+function checkAllowedOrigins(): void {
+  const registryPath = path.join(TARGETS_DIR, 'REGISTRY.md');
+  if (!fs.existsSync(registryPath)) return;
+
+  const activeOrigins = new Set<string>();
+  for (const line of read(registryPath).split('\n')) {
+    if (!line.startsWith('|') || line.startsWith('| :')) continue;
+    const cell = line.split('|')[3];
+    if (!cell || /archived/i.test(cell)) continue;
+    const match = /`(https?:\/\/[^`]+)`/.exec(cell);
+    if (match) activeOrigins.add(match[1]);
+  }
+  if (activeOrigins.size === 0) return;
+
+  const configs = [
+    { file: '.mcp.json', pattern: /--allowed-origins"\s*,\s*"([^"]+)"/ },
+    {
+      file: path.join('.agents', 'mcp_config.json'),
+      pattern: /--allowed-origins"\s*,\s*"([^"]+)"/,
+    },
+    { file: path.join('.codex', 'config.toml'), pattern: /--allowed-origins","([^"]+)"/ },
+  ];
+
+  for (const { file, pattern } of configs) {
+    if (!fs.existsSync(file)) continue;
+    const match = pattern.exec(read(file));
+    if (!match) {
+      report(file, 'has no --allowed-origins list');
+      continue;
+    }
+    const configuredOrigins = new Set(match[1].split(';'));
+    for (const origin of activeOrigins) {
+      if (!configuredOrigins.has(origin)) {
+        report(file, `missing active target origin ${origin} from docs/targets/REGISTRY.md`);
+      }
+    }
+    for (const origin of configuredOrigins) {
+      if (!activeOrigins.has(origin)) {
+        report(file, `allows ${origin}, which is not an active target in docs/targets/REGISTRY.md`);
+      }
+    }
+  }
+}
+
 // Per INTENT.md §2: the process layer must never name a specific target. Checks
 // every name in docs/targets/REGISTRY.md against AGENTS.md, CORE_PRINCIPLES.md,
 // and every agent/skill file - replacing the one-off grep done by hand before.
@@ -350,6 +397,7 @@ function main(): void {
   checkMcpAllowlists();
   checkProcessLayerAgnostic();
   checkConfidenceBlocks();
+  checkAllowedOrigins();
 
   if (problems.length === 0) {
     console.log(`✅ All documentation checks passed across ${files.length} files.`);
