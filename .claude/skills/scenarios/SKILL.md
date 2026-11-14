@@ -54,3 +54,6 @@ live target or a documented contract - report the gap.
 
 Score confidence for each stage against its Done criteria, using the rubric
 in `docs/templates/README.md`, before reporting either stage as done.
+Append each stage's confidence block as a dated entry under the spec file's
+"## Confidence Log" section (format in `specs/TEMPLATE.md`) - not just in
+the chat report. `npm run docs:check` verifies the entry is well-formed.

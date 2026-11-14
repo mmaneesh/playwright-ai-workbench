@@ -11,6 +11,7 @@ interface Problem {
 
 const TEMPLATES_DIR = path.join('docs', 'templates');
 const TARGETS_DIR = path.join('docs', 'targets');
+const SPECS_DIR = 'specs';
 const LOG_FILE = path.join('docs', 'LOG.md');
 const LOG_ACTIVE_CAP = 30;
 const SKIP_DIRS = new Set(['node_modules', '.git', 'test-results', 'playwright-report', 'dist']);
@@ -79,6 +80,45 @@ function checkLog(): void {
       LOG_FILE,
       `${active} active entries exceed the cap of ${LOG_ACTIVE_CAP}; prune at sign-off`
     );
+  }
+}
+
+// Per INTENT.md §4 and the rubric in docs/templates/README.md: every
+// "## Confidence Log" entry in a spec file must have all three fields,
+// Confidence an integer 1-10 - makes the confidence rubric mechanically
+// enforced instead of an instruction nothing verifies (PLAN.md Phase 3).
+function checkConfidenceBlocks(): void {
+  if (!fs.existsSync(SPECS_DIR)) return;
+  for (const name of fs.readdirSync(SPECS_DIR)) {
+    if (!name.endsWith('.plan.md')) continue;
+    const file = path.join(SPECS_DIR, name);
+    const content = read(file);
+    const logSection = /## Confidence Log([\s\S]*)$/.exec(content)?.[1];
+    if (logSection === undefined) {
+      report(file, 'has no "## Confidence Log" section');
+      continue;
+    }
+    const entries = logSection.split(/^### /m).slice(1);
+    if (entries.length === 0) {
+      report(file, '"## Confidence Log" has no dated entries');
+      continue;
+    }
+    for (const entry of entries) {
+      const heading = entry.split('\n')[0]?.trim() ?? '(unknown entry)';
+      const confidence = /^-\s*Confidence:\s*(\S+)/m.exec(entry)?.[1];
+      const unknowns = /^-\s*Unknowns:\s*(.+)$/m.exec(entry)?.[1]?.trim();
+      const rationale = /^-\s*Rationale:\s*(.+)$/m.exec(entry)?.[1]?.trim();
+      if (
+        !confidence ||
+        !/^\d+$/.test(confidence) ||
+        Number(confidence) < 1 ||
+        Number(confidence) > 10
+      ) {
+        report(file, `Confidence Log entry "${heading}" has no valid Confidence (1-10 integer)`);
+      }
+      if (!unknowns) report(file, `Confidence Log entry "${heading}" has no Unknowns field`);
+      if (!rationale) report(file, `Confidence Log entry "${heading}" has no Rationale field`);
+    }
   }
 }
 
@@ -309,6 +349,7 @@ function main(): void {
   checkAgentsDigest();
   checkMcpAllowlists();
   checkProcessLayerAgnostic();
+  checkConfidenceBlocks();
 
   if (problems.length === 0) {
     console.log(`✅ All documentation checks passed across ${files.length} files.`);

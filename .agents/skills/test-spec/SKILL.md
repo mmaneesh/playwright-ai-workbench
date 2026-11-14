@@ -47,4 +47,7 @@ real in the target or environment - report the flake pattern; never mask it
 with a retry or a sleep.
 
 Score confidence against the Done criteria above, using the rubric in
-`docs/templates/README.md`, before reporting done.
+`docs/templates/README.md`, before reporting done. Append the confidence
+block as a dated entry under the spec file's "## Confidence Log" section
+(format in `specs/TEMPLATE.md`) - not just in the chat report.
+`npm run docs:check` verifies the entry is well-formed.

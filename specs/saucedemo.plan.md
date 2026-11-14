@@ -140,3 +140,28 @@ non-flaky way to assert its slowness is ever found (see "Not covered" below).
 | `visual_user` layout difference           | Confirmed (`CH-001`); needs a screenshot baseline, not a bounding-box heuristic                                      | The visual regression suite exists (`PLAN.md` Phase 4)                      |
 | API, visual, audit suites for this target | No API exists; visual/audit intentionally out of scope for this pass                                                 | If this target is kept as a long-term suite rather than a portability proof |
 | Sort options beyond "Price (low to high)" | Low risk, redundant with `SC-007`'s technique                                                                        | If a sort-specific defect is ever reported                                  |
+
+## Confidence Log
+
+### 2026-11-14 - Stage 1 - Explore (`CH-001`)
+
+- Confidence: 7
+- Unknowns: whether `DEF-002` (the identical placeholder image) also affects
+  the cart or product-detail pages, not checked - only the inventory page was
+  verified.
+- Rationale: every finding (`problem_user`'s image, `error_user`'s exception,
+  `performance_glitch_user`'s timing, `visual_user`'s layout) was confirmed by
+  a live observation - DOM inspection, a network trace, or a console error -
+  not inferred. Held back from High because of the one unchecked
+  generalization above.
+
+### 2026-11-14 - Stage 2/3 - Scenarios, Test cases
+
+- Confidence: 9
+- Unknowns: none.
+- Rationale: `SC-008`/`SC-010` were written directly from the Stage 1
+  observations above, each with a concrete test case and a traced `DEF-ID`.
+  `SC-001`-`SC-007` were migrated unchanged in substance from the
+  previously-verified workbook (risk, priority, technique, and oracle
+  preserved exactly). `performance_glitch_user`/`visual_user` are a decided
+  exclusion with a stated reason, not an open unknown.

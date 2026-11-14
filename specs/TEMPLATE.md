@@ -50,3 +50,15 @@ inline - no separate Risk Register or Scenario Catalog table (`INTENT.md` §3).
 
 | Item | Reason | Revisit when |
 | :--- | :----- | :----------- |
+
+## Confidence Log
+
+One dated entry per stage, appended by the agent that did the work - the
+rubric is defined once in `docs/templates/README.md`. `npm run docs:check`
+verifies each entry has all three fields, `Confidence` as an integer 1-10.
+
+### <YYYY-MM-DD> - Stage <N> - <Explore | Scenarios | Test cases | Test automation>
+
+- Confidence: <1-10>
+- Unknowns: <specific list, or "none">
+- Rationale: <one line per factor that applied>

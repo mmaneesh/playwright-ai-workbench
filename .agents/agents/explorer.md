@@ -90,5 +90,7 @@ complete.
 Score confidence against the Done criteria above, using the rubric in
 `docs/templates/README.md`, before reporting. Under 300 words: scope, what
 was and wasn't explored, defects logged, open questions, and the confidence
-block. Write findings into `specs/<target>.plan.md`, not a separate
-workbook section.
+block. Write findings into `specs/<target>.plan.md`, not a separate workbook
+section - and append the confidence block itself as a dated entry under that
+file's "## Confidence Log" section (format in `specs/TEMPLATE.md`), not just
+in the chat report. `npm run docs:check` verifies the entry is well-formed.

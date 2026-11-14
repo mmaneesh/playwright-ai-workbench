@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-interface Violation {
+export interface Violation {
   file: string;
   line?: number;
   rule: string;
@@ -17,7 +18,11 @@ const VIOLATION_RULES = [
   },
   {
     id: 'NO_XPATH',
-    pattern: /(['"`])\/\/[^'"`]*\1|xpath=/,
+    // A quote immediately followed by // is an XPath locator - matched without
+    // requiring the closing quote, since the old [^'"`]* middle broke on a
+    // perfectly common XPath like "//button[@id='submit']" (embeds a quote
+    // of the other kind, found by the eval in scripts/guardrails/check-rules.eval.ts).
+    pattern: /(['"`])\/\/|xpath=/,
     description:
       'XPath locators are forbidden by CORE_PRINCIPLES. Use accessible queries (getByRole, getByLabel, getByText).',
   },
@@ -35,7 +40,7 @@ const VIOLATION_RULES = [
   },
 ];
 
-function checkContent(filePath: string, content: string): Violation[] {
+export function checkContent(filePath: string, content: string): Violation[] {
   const violations: Violation[] = [];
   const lines = content.split('\n');
 
@@ -213,4 +218,16 @@ async function main(): Promise<void> {
   }
 }
 
-void main();
+// Only runs the CLI when this file is the entry point, not when an eval
+// imports checkContent - realpath handles symlinked paths (e.g. macOS /tmp).
+function isEntryPoint(): boolean {
+  try {
+    return (
+      fs.realpathSync(fileURLToPath(import.meta.url)) === fs.realpathSync(process.argv[1] ?? '')
+    );
+  } catch {
+    return false;
+  }
+}
+
+if (isEntryPoint()) void main();
