@@ -65,14 +65,27 @@ in `INTENT.md` §3/§5/§11 - this is the checklist, not the rationale.
 - [ ] **Open, not done today**: framework self-tests for the docs checker (`check-docs.ts`) itself are not persisted as an automated eval, unlike the guardrail checker's. Each new check above (`checkConfidenceBlocks`, `checkAllowedOrigins`) was manually verified during this session to catch an injected failure and then restored - real evidence it works today, but not a standing regression test the way `check-rules.eval.ts` is. `check-docs.ts`'s functions read hardcoded relative paths directly rather than taking an injectable base directory, which would need a small refactor first to test cleanly - deferred rather than rushed.
 - [x] ~~Cleanup pass against `INTENT.md`: README.md's entire "6-phase workflow" section, its project-structure listing, skills/agents table, and "Adapting this to your own application" guide all still described the retired process as current - rewritten to the Stage 0-5 pipeline. `CORE_PRINCIPLES.md`'s one stray "Phase 2" reference fixed to "Stage 2."~~ Swept the rest of the repo (CI workflow, `.mcp.json`/`.agents`/`.codex` configs, orphaned files, empty directories, TestDino leftovers) - nothing else found.
 
-## `PLAN.md` Phase 4 — Visual regression suite (Not started)
+## `PLAN.md` Phase 4 — Visual regression suite (Verified, complete with one open item)
 
-`tests/visual/` has config but zero specs - a real gap (carried over from the
-2026-10-29 punch list), not a deliberate scope decision.
-
-- [ ] Scope agreed: which pages, which viewports, how many baseline variants - before any spec is written.
-- [ ] Specs written with committed, Docker-generated baselines.
-- [ ] Wired into the CI matrix.
+- [x] ~~Scope agreed: which pages, which viewports, how many baseline variants.~~
+      5 scenarios (`SC-011`-`SC-015`: login, inventory, cart, checkout info step,
+      checkout overview step) x 3 projects (`desktop-chrome`/`tablet`/`mobile`,
+      the latter two `webkit`-engine per their iPad/iPhone device presets) = 15
+      screenshots. New Risk `R-008` added to `specs/saucedemo.plan.md`.
+- [x] ~~Specs written with committed, Docker-generated baselines.~~
+      `tests/visual/{login,inventory,cart,checkout}.spec.ts`. Baselines generated
+      via `docker compose run --rm visual-tests npm run test:visual --
+--update-snapshots` (approval asked and given first, per
+      `CORE_PRINCIPLES.md` §6). `docker-compose.yml`'s `visual-tests` service
+      pinned to `platform: linux/amd64` so baselines generated on an Apple
+      Silicon (arm64) laptop still match CI's amd64 `ubuntu-latest` runners -
+      verified by re-running the suite against the committed baselines
+      afterward: 15/15 passed. `npm run check` passes.
+- [x] ~~Wired into the CI matrix.~~ `.github/workflows/playwright.yml`'s
+      `test` job matrix: new `visual` entry, `browser: 'chromium webkit'` (both
+      engines needed - see above). **Open**: not yet confirmed by an actual CI
+      run (`CORE_PRINCIPLES.md` §6: "local pass is not CI coverage") - needs a
+      push/PR to verify the matrix entry executes as configured.
 
 ## `PLAN.md` Phase 5 — Database testing, scoping only (Not started)
 

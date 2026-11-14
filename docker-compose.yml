@@ -13,6 +13,9 @@ services:
 
   visual-tests:
     build: .
+    # Pinned to match CI's amd64 runners (.github/workflows/playwright.yml) so baselines
+    # generated locally on an Apple Silicon Mac render identically in CI, not just "close".
+    platform: linux/amd64
     init: true
     shm_size: '1gb'
     environment:

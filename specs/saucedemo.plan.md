@@ -9,8 +9,10 @@ in the move - see `docs/targets/saucedemo-defects.md` for the defect ledger.
 - **What is this**: Public demo e-commerce storefront ("Swag Labs") built by
   Sauce Labs explicitly as an automation/QA practice target, with
   intentionally seeded defects behind specific demo accounts.
-- **Surfaces**: UI only. No API exists for this target. Visual and audit
-  suites were deliberately not opened for this target this pass.
+- **Surfaces**: UI only. No API exists for this target. The audit suite
+  (`tests/audit/`) already runs against it; the visual suite (`tests/visual/`)
+  now covers it too (`PLAN.md` Phase 4, 2026-11-14) - this line previously
+  said neither was opened, which was stale.
 - **Database access**: no.
 - **Auth model**: 6 published demo accounts, password `secret_sauce` for all:
   `standard_user` (happy path), `locked_out_user` (clean, accessible lockout
@@ -41,6 +43,7 @@ in the move - see `docs/targets/saucedemo-defects.md` for the defect ledger.
 | `R-005` | Sort control does not actually reorder the product list                                    | L          | M      | `P2`     |
 | `R-006` | A product renders the wrong (or no) image and nothing notices (`DEF-002`)                  | L          | M      | `P2`     |
 | `R-007` | The checkout form throws an uncaught client-side exception and nothing notices (`DEF-003`) | L          | M      | `P2`     |
+| `R-008` | A layout or rendering regression on login/inventory/cart/checkout goes unnoticed           | L          | M      | `P2`     |
 
 ## Scenarios
 
@@ -119,6 +122,46 @@ in the move - see `docs/targets/saucedemo-defects.md` for the defect ledger.
 `SC-009` is intentionally unused - reserved for `performance_glitch_user` if a
 non-flaky way to assert its slowness is ever found (see "Not covered" below).
 
+### SC-011 - The empty login page matches its visual baseline
+
+- Risk: `R-008` · Priority: `P2` · Technique: Claims · Oracle: Consistency
+- Preconditions: guest
+- Test case: 1) Open the login page -> expect: matches the committed baseline screenshot (desktop/tablet/mobile)
+- Decision: `Automate`
+- Spec: `tests/visual/login.spec.ts`
+
+### SC-012 - The product grid matches its visual baseline
+
+- Risk: `R-008` · Priority: `P2` · Technique: Claims · Oracle: Consistency
+- Preconditions: logged in as `standard_user`
+- Test case: 1) Open the inventory page -> expect: matches the committed baseline screenshot
+- Decision: `Automate`
+- Spec: `tests/visual/inventory.spec.ts`
+
+### SC-013 - The cart with two items matches its visual baseline
+
+- Risk: `R-008` · Priority: `P2` · Technique: Claims · Oracle: Consistency
+- Preconditions: logged in as `standard_user`, two items added to the cart
+- Test case: 1) Open the cart page -> expect: matches the committed baseline screenshot
+- Decision: `Automate`
+- Spec: `tests/visual/cart.spec.ts`
+
+### SC-014 - The checkout information step matches its visual baseline
+
+- Risk: `R-008` · Priority: `P2` · Technique: Claims · Oracle: Consistency
+- Preconditions: logged in as `standard_user`, one item in cart, on checkout step one
+- Test case: 1) Reach checkout step one -> expect: matches the committed baseline screenshot
+- Decision: `Automate`
+- Spec: `tests/visual/checkout.spec.ts`
+
+### SC-015 - The checkout overview step matches its visual baseline
+
+- Risk: `R-008` · Priority: `P2` · Technique: Claims · Oracle: Consistency
+- Preconditions: logged in as `standard_user`, one item in cart, info submitted on step one
+- Test case: 1) Reach checkout step two -> expect: matches the committed baseline screenshot
+- Decision: `Automate`
+- Spec: `tests/visual/checkout.spec.ts`
+
 ## Exploratory charters
 
 - `CH-001` (`problem_user`, `visual_user`, `performance_glitch_user`,
@@ -165,3 +208,18 @@ non-flaky way to assert its slowness is ever found (see "Not covered" below).
   previously-verified workbook (risk, priority, technique, and oracle
   preserved exactly). `performance_glitch_user`/`visual_user` are a decided
   exclusion with a stated reason, not an open unknown.
+
+### 2026-11-14 - Stage 4 - Test automation (`SC-011`-`SC-015`, visual suite)
+
+- Confidence: 8
+- Unknowns: whether the new CI matrix entry (`.github/workflows/playwright.yml`,
+  `visual`) actually passes on a real `ubuntu-latest` run has not been
+  checked yet - only a local Docker run pinned to `linux/amd64` was verified
+  (15/15 passed against the committed baselines, re-run twice: once writing
+  baselines, once verifying against them).
+- Rationale: `R-008` and `SC-011`-`SC-015` trace directly to the already-open
+  gap this stage was scoped to close (`PLAN.md` Phase 4); baselines were
+  generated and re-verified in Docker specifically to avoid the
+  arm64-laptop-vs-amd64-CI rendering mismatch, not assumed safe. Held back
+  from High only because the CI leg itself is unverified pending an actual
+  run.
