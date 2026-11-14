@@ -5,4 +5,6 @@ export const SAUCEDEMO_PASSWORD = 'secret_sauce';
 export const SAUCEDEMO_ACCOUNTS = {
   standard: 'standard_user',
   lockedOut: 'locked_out_user',
+  problem: 'problem_user',
+  error: 'error_user',
 } as const;

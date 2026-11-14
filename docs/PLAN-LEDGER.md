@@ -10,13 +10,9 @@ TestDino Demo Store was removed as a target on 2026-10-29 (all files, config and
 
 ## Target Applications Registry
 
-- **API Contract Target**: Gaurav Khurana Bill Payment API (`https://billpay-api.gauravkhurana-practice-api.workers.dev`)
-  - Auth: `X-API-Key: demo-api-key-123`
-- **Primary UI / Visual / Audit Target**: Sauce Demo / Swag Labs (`https://www.saucedemo.com`)
-  - Configured in `env-config/saucedemo.env` and active `env-config/dev.env` (`.env`)
-  - Workbook: [`docs/targets/saucedemo.md`](targets/saucedemo.md); ledger: [`docs/targets/saucedemo-defects.md`](targets/saucedemo-defects.md)
-- **Archived UI Target**: LambdaTest eCommerce Playground (`https://ecommerce-playground.lambdatest.io`)
-  - Preserved in `env-config/lambdatest.env` for environment toggling via `npm run env:config -- lambdatest`; never exercised by any current spec
+Moved to [`docs/targets/REGISTRY.md`](targets/REGISTRY.md), which also doubles
+as the keyword list `npm run docs:check` greps the process layer against
+(`INTENT.md` §2) - one file, one owner, mechanically checked.
 
 ---
 
@@ -81,24 +77,16 @@ TestDino Demo Store was removed as a target on 2026-10-29 (all files, config and
 
 ## Phase 5 — Supervised AI Harness, Specialist Roles, & Scaffolding Architecture (Partially Completed)
 
-- [x] ~~P5.1 Standardized 6-Phase Engineering Lifecycle & Reusable Blueprint Templates (`docs/templates/`).~~
-  - `01-EXPLORATION.template.md`: Exhaustive 12-point context-driven & technical reconnaissance checklist (Bach/Bolton SFDPOT & FEW HICCUPPS, Weinberg, Pradeep/Ajay, Hendrickson).
-  - `02-SCENARIOS.template.md`: Risk-ranked scenario matrices (P0 Smoke, P1 Regression, P2 Edge) with Goldilocks & boundary heuristics (Kaner, Crispin/Gregory, Hendrickson, Jones).
-  - `03-AUTOMATION-DESIGN.template.md`: Component/page encapsulation, scoped locators, and fixture DI wiring (Fowler, Stewart, Marcano/Palmer, Lushnikov, O'Brien).
-  - `04-TEST-SPEC.template.md`: Role-first, web-first, flake-immune test implementation blueprint (Dodds, O'Brien, Judis, Hric, Bahmutov).
-  - `05-EVIDENCE.template.md`: Raw terminal execution logs, root-cause triage, and RIMGEA bug advocacy (Kaner, Bolton).
-  - `06-PR-REVIEW.template.md`: Continuous Delivery 4-in-1 quality gate verification and Test Desiderata review sign-off (Farley, Beck, Page).
-  - `DEFECT_LEDGER.template.md`: Standardized RIMGEA defect tracking ledger with `FEW HICCUPPS` oracle classification and `DEF-XXX` IDs.
+- [x] ~~P5.1 Standardized 6-Phase Engineering Lifecycle & Reusable Blueprint Templates (`docs/templates/`).~~ Superseded 2026-11-14: the six phase templates were retired once their substance (the SFDIPOT model, the 11 oracles, the 3 tours, risk/priority math, RIMGEA defect rigor, all guardrails) moved into the `explorer`/`verifier` agents, the `scenarios`/`test-spec`/`pr-review` skills, and the trimmed `docs/templates/README.md` vocabulary file - see `INTENT.md` §3/§5/§11 for why and what survived.
 - [x] ~~P5.2 Single-Workbook Target Architecture (`docs/targets/`).~~
   - Unified living workbook: `docs/targets/<site>.md` containing all 5 phases in one cohesive document.
   - Dedicated living defect ledger: `docs/targets/<site>-defects.md` for objective RIMGEA bug reporting.
-  - Initialized for the then-primary target (TestDino, structured with all 12 exploration points, and its defect ledger); both removed 2026-10-29 in favor of Sauce Demo's `docs/targets/saucedemo.md`.
-- [x] ~~P5.3 Agent Skills Library.~~
-  - Cross-platform AI skills created in `.agents/skills/` and `.claude/skills/`: `explore`, `scenarios`, `design`, `test-spec`, `evidence`, `pr-review`.
+  - Initialized for the then-primary target (TestDino, structured with all 12 exploration points, and its defect ledger); both removed 2026-10-29 in favor of Sauce Demo's workbook, since migrated (2026-11-14) to `specs/saucedemo.plan.md`.
+- [x] ~~P5.3 Agent Skills Library.~~ Current set (2026-11-14): `explore`, `scenarios`, `test-spec`, `pr-review` - cross-platform, in `.agents/skills/` and `.claude/skills/`. `automation-design` and `evidence` were retired into `test-spec` the same day their substance stopped needing a separate phase.
 - [x] ~~P5.4 Autonomous Exploration Agent Definition & MCP Wiring.~~
-  - Agent persona specification authored in `.agents/agents/explorer.md` and `.claude/agents/explorer.md`.
-  - Antigravity subagent `explorer` registered with the full 12-point context-driven reconnaissance system prompt.
-  - MCP authorization configured in `.mcp.json`, `.agents/mcp_config.json`, and `.codex/config.toml`, now allowing `https://www.saucedemo.com`.
+  - Agent persona specification authored in `.agents/agents/explorer.md` and `.claude/agents/explorer.md`, now also covering Stage 0 Intake and carrying its checklist inline (`INTENT.md` §4).
+  - A `verifier` agent (read-only tools) was added 2026-11-14 for Stage 5, closing the gap `D-004` had named but never built.
+  - `.mcp.json`, `.agents/mcp_config.json`, and `.codex/config.toml` still hardcode the Sauce Demo/BillPay origins in `--allowed-origins` - a real agnosticism gap (`INTENT.md` §2), not yet mechanically checked. Stage 0 Intake now says to add a new target's origin there; a proper fix (checking this isn't stale) is still open.
 - [x] ~~P5.5 Execution of Phase 1 Reconnaissance on TestDino~~ — scoped to Home and /products only (6 defects logged, now removed with the target). Original items:
   - Run browser exploration probe across all 12 points.
   - Populate Section 1 of the target workbook.
@@ -120,7 +108,7 @@ Found during an external review of the Sauce Demo build-out, verified against th
 - [x] ~~`tests/ui/saucedemo/inventory.authenticated.spec.ts` (`SC-007` sort test) — passes vacuously on an empty array.~~ Fixed: added an explicit non-empty assertion before the sort comparison.
 - [x] ~~`tests/ui/saucedemo/checkout.authenticated.spec.ts` (`SC-005`) — only asserts `toContainText('Total:')`.~~ Fixed: now parses `subtotal-label`/`tax-label`/`total-label` and asserts total equals item total + tax.
 - [x] ~~`README.md:242` — still says "5-way matrix"...~~ Fixed: now says "8-way matrix" with all legs named; roadmap line corrected to note checkout/cart are covered, only visual is not.
-- [x] ~~`docs/targets/saucedemo.md` Section 5 (Evidence) — still says "18 of 18 passed"...~~ Fixed: re-ran the live suite (22 tests, 22 passed incl. `SC-006` as an expected known-defect failure on all 3 authenticated browsers) and rewrote Section 5 from that real run.
+- [x] ~~The old workbook's Section 5 (Evidence) — still said "18 of 18 passed"...~~ Fixed: re-ran the live suite (22 tests, 22 passed incl. `SC-006` as an expected known-defect failure on all 3 authenticated browsers). That workbook was since retired (2026-11-14) in favor of `specs/saucedemo.plan.md`.
 
 **Already known, not new — still open from before:**
 

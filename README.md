@@ -199,7 +199,7 @@ Each suite has its own Playwright config under `config/`, its own `test-results/
 
 ### UI (`tests/ui/`, `config/playwright.ui.config.ts`)
 
-Full functional/E2E coverage across **Chromium, Firefox, and WebKit**, against [Sauce Demo](https://www.saucedemo.com) (`tests/ui/saucedemo/`). Role-first locators (`getByRole`) where the target exposes clean accessible names, `data-test`-attribute locators as a documented exception where it doesn't (see `docs/targets/saucedemo.md` 1.7.4), fixture-injected page objects (`@fixtures`), every action/assertion wrapped in `test.step(...)`, and every test tagged with a scenario ID (`SC-00x`) plus a priority (`@smoke`, `@regression`, `@edge`). `login.spec.ts` tests the login flow itself (fresh login per test, by design); everything else that needs a signed-in session uses `*.authenticated.spec.ts` + real `storageState` (see [Authentication](#authentication-storagestate)) instead of repeating login in every file. Currently: 7 scenarios, 22 tests across 7 projects (3 anonymous browsers + `setup` + 3 authenticated browsers).
+Full functional/E2E coverage across **Chromium, Firefox, and WebKit**, against [Sauce Demo](https://www.saucedemo.com) (`tests/ui/saucedemo/`). Role-first locators (`getByRole`) where the target exposes clean accessible names, `data-test`-attribute locators as a documented exception where it doesn't (confirmed live against the site), fixture-injected page objects (`@fixtures`), every action/assertion wrapped in `test.step(...)`, and every test tagged with a scenario ID (`SC-00x`) plus a priority (`@smoke`, `@regression`, `@edge`). `login.spec.ts` tests the login flow itself (fresh login per test, by design); everything else that needs a signed-in session uses `*.authenticated.spec.ts` + real `storageState` (see [Authentication](#authentication-storagestate)) instead of repeating login in every file. Currently: 7 scenarios, 22 tests across 7 projects (3 anonymous browsers + `setup` + 3 authenticated browsers).
 
 ### API (`tests/api/`, `config/playwright.api.config.ts`)
 
@@ -207,11 +207,11 @@ Pure `APIRequestContext`-based contract tests against the bill-pay demo API: hea
 
 ### Visual (`tests/visual/`, `config/playwright.visual.config.ts`)
 
-Snapshot regression, configured for **desktop (1280×720), tablet (iPad), and mobile (iPhone 14)** viewports, with `maxDiffPixelRatio: 0.02` / `threshold: 0.05` tolerances and animations disabled for determinism. **Opt-in and excluded from `npm test`** because baseline snapshots need a human-approved first run and are platform/font-rendering sensitive — run it explicitly, and prefer the Docker variant (`npm run test:visual:docker`) for reproducible baselines across machines. Currently: no specs (deliberately out of scope for Sauce Demo — see `docs/targets/saucedemo.md` Section 2.1); the config and `npm run test:visual` command are ready the moment a spec is added.
+Snapshot regression, configured for **desktop (1280×720), tablet (iPad), and mobile (iPhone 14)** viewports, with `maxDiffPixelRatio: 0.02` / `threshold: 0.05` tolerances and animations disabled for determinism. **Opt-in and excluded from `npm test`** because baseline snapshots need a human-approved first run and are platform/font-rendering sensitive — run it explicitly, and prefer the Docker variant (`npm run test:visual:docker`) for reproducible baselines across machines. Currently: no specs - a real gap, not a deliberate scope decision (see `PLAN.md` Phase 4); the config and `npm run test:visual` command are ready the moment a spec is added.
 
 ### Audit (`tests/audit/`, `config/playwright.audit.config.ts`)
 
-Domain-agnostic checks that work on virtually any web page without app-specific locators — deliberately conservative about what counts as a universal requirement, not just what happened to be true of one target (see `docs/targets/saucedemo.md` Section 5 for how this was found and fixed):
+Domain-agnostic checks that work on virtually any web page without app-specific locators — deliberately conservative about what counts as a universal requirement, not just what happened to be true of one target:
 
 - **Accessibility** — full `@axe-core/playwright` scan (WCAG 2.1 A/AA + 2.1 A/AA rule sets), zero rule suppressions.
 - **Web Vitals** — LCP, CLS, FCP, TTFB via the browser's native `PerformanceObserver`, checked against budgets.
@@ -373,6 +373,8 @@ The sections above describe what exists today. The items below are my own assess
 **Medium-term (governance):**
 
 - Move the guardrail checker from regex-based matching to an AST-based check (e.g. `ts-morph`) as the ruleset grows, to avoid false positives/negatives in string literals and reformatted code.
+- Align dependency, container and browser versions with an explicit update workflow, rather than ad hoc bumps.
+- Verify the agnostic pipeline (`INTENT.md` §2) against a target this repo hasn't tried yet — ideally one with real database access, to retire §8's "Database: aspirational" line with a real example instead of a promise.
 
 **Longer-term (maturity):**
 
@@ -380,5 +382,6 @@ The sections above describe what exists today. The items below are my own assess
 - Define a test-data lifecycle/cleanup strategy for stateful API flows (the billing-lifecycle test currently has no visible teardown).
 - Pair the automated axe-core accessibility scan with at least one scripted keyboard-navigation/focus-order check per critical journey — axe catches a meaningful but partial slice of real WCAG issues.
 - Write an explicit visual-baseline governance policy: who approves a baseline change, where approved baselines are stored, and how cross-OS rendering drift is handled.
+- Validate an optional GitHub issue / CI reporter integration, and do a final clean-clone verification pass once the pipeline above has a second real target to prove it against.
 
 Load/stress testing, security penetration testing, and third-party reporting dashboards are deliberately **out of scope** for this framework rather than a gap — Playwright is not the right tool for the first two, and the project intentionally avoids adding paid reporting infrastructure until the suite's size actually demands it.

@@ -1,7 +1,7 @@
 import type { Page, Locator } from '@playwright/test';
 
 // Covers all three checkout steps: they are one continuous, non-branching journey
-// (see docs/targets/saucedemo.md Section 3.3), so one page object models all of it.
+// (see specs/saucedemo.plan.md's SC-005/SC-006), so one page object models all of it.
 export class SaucedemoCheckoutPage {
   readonly firstNameInput: Locator;
   readonly lastNameInput: Locator;

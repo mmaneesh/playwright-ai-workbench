@@ -1,80 +1,49 @@
-# Defect Ledger
+# Defect Record Format
 
-- **Target Application**: `[Target Name]`
-- **Target URL / Host**: `[URL]`
-- **Defect tool**: `[none | <tool>]`
-- **Last Updated**: `[YYYY-MM-DD]`
+Used in `docs/targets/<site>-defects.md`. Severity, status and oracle names
+come from `docs/templates/README.md` - not repeated here.
 
-With `Defect tool: none`, this ledger holds the full record of each defect. With a tool named, the full record lives in the tool's ticket, moved there when filed, and this ledger keeps only the summary row: ID, title, severity, ticket key and status. Filing a ticket needs approval.
+## Summary table (every defect gets a row)
 
-Severity, test levels, oracle names, defect statuses and the `DEF-nnn` ID scheme are defined in `docs/templates/README.md`. They are not repeated here.
-
----
-
-## 1. What NEVER To Do
-
-> [!CAUTION]
->
-> - 🚫 **No un-isolated or vague bugs.** Apply **RIMGEA** (**R**eplicate, **I**solate, **M**aximize, **G**eneralize, **E**xternalize, **A**nd state it clearly and dispassionately). A developer must be able to reproduce it in under 60 seconds.
-> - 🚫 **No defect without an oracle and a stakeholder impact.** Say why the behaviour is wrong and who it hurts.
-> - 🚫 **No defect without durable artifacts.** `test-results/` is overwritten every run and is not tracked. Attach artifacts to the ticket, or copy them to `docs/targets/evidence/`.
-> - 🚫 **No `Verified` status without a clean run.** Only a Phase 5 run that passes honestly moves a defect from `Remediated` to `Verified`.
-
----
-
-## 2. Summary Table
-
-| Defect ID | Title | Severity | Level | Oracle | Found by (`Phase 1` or scenario ID) | Status | Ticket key |
+| Defect ID | Title | Severity | Level | Oracle | Found by (`Stage 1` or scenario ID) | Status | Ticket key |
 | :-------- | :---- | :------- | :---- | :----- | :---------------------------------- | :----- | :--------- |
 
----
+## Full write-up - only for a real, non-trivial defect
 
-## 3. Detailed Records
-
-Used when `Defect tool` is `none`.
+A defect that needs a developer to actually act on it (not an `Accepted`
+seeded/demo defect kept to prove detection works - that's a table row and
+nothing more) gets this, applying **RIMGEA**: **R**eplicate, **I**solate,
+**M**aximize, **G**eneralize, **E**xternalize, **A**nd state it plainly.
 
 ### [DEF-nnn]: [Descriptive title]
 
-- **Severity**: `High` | `Medium` | `Low`
-- **Level**: `UI` | `API` | `Visual` | `Audit`
-- **Oracle**: (name from the README vocabulary)
-- **Status**: `Open` | `Triaged` | `Remediated` | `Verified` | `Accepted`
-- **Found by**: `Phase 1` | `[scenario ID]`
+- **Severity** / **Level** / **Oracle** / **Status** / **Found by**: from the
+  table above.
 - **Route or endpoint**:
 - **Element or field**:
 
-#### Stakeholder and user impact (Externalize)
+**Stakeholder impact** - how this affects real users, assistive technology
+users, trust, or revenue.
 
-[How this affects real users, assistive technology users, trust, or revenue.]
+**Minimal steps to reproduce** - numbered, isolating, reproducible by a
+developer in under 60 seconds.
 
-#### Minimal steps to reproduce (Replicate and Isolate)
+**Generalization** - one instance, or does it affect more? What makes it worse?
 
-1. Go to `[URL]`
-2. Do `[minimal isolating action]`
-3. Observe the behaviour
+**Expected result** - dispassionate statement, with its source.
 
-#### Generalization (Maximize and Generalize)
+**Actual result** - dispassionate statement of what happens.
 
-[One item or all of them? What makes it worse?]
+**Diagnostics** - console error, scan violation, response body, or validation
+error, verbatim.
 
-#### Expected result
+**Artifacts** - durable (ticket attachment or `docs/targets/evidence/`, never
+`test-results/`, which is overwritten every run): screenshot, trace, and the
+exact command to reproduce or view the trace.
 
-[Dispassionate statement of the expected behaviour and its source.]
+## What never to do
 
-#### Actual result
-
-[Dispassionate statement of what happens.]
-
-#### Diagnostics
-
-```text
-[Console error, scan violation, response body or validation error]
-```
-
-#### Artifacts
-
-Stored durably (ticket attachment or `docs/targets/evidence/`):
-
-- Screenshot:
-- Trace:
-- Command to view the trace: `npx playwright show-trace <path>`
+- No un-isolated or vague bugs - see RIMGEA above.
+- No defect without an oracle and a stakeholder impact.
+- No defect without durable artifacts for anything above `Low` severity.
+- No `Verified` status without a clean re-run.
