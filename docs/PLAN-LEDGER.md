@@ -63,6 +63,7 @@ in `INTENT.md` §3/§5/§11 - this is the checklist, not the rationale.
 - [ ] Mechanical check that a touched `specs/<target>.plan.md` contains a well-formed `## Confidence` block (the three fields present, `Confidence` an integer 1-10) - makes the rubric added in Phase 2 actually enforced, not just instructed.
 - [ ] Mechanical check that `--allowed-origins` in `.mcp.json`/`.agents/mcp_config.json`/`.codex/config.toml` matches `docs/targets/REGISTRY.md` - closes the Phase 2 agnosticism gap above.
 - [ ] Framework self-tests: regression tests for the custom guardrail/docs checkers themselves (carried over from the 2026-10-29 punch list, still open).
+- [x] ~~Cleanup pass against `INTENT.md`: README.md's entire "6-phase workflow" section, its project-structure listing, skills/agents table, and "Adapting this to your own application" guide all still described the retired process as current - rewritten to the Stage 0-5 pipeline. `CORE_PRINCIPLES.md`'s one stray "Phase 2" reference fixed to "Stage 2."~~ Swept the rest of the repo (CI workflow, `.mcp.json`/`.agents`/`.codex` configs, orphaned files, empty directories, TestDino leftovers) - nothing else found.
 
 ## `PLAN.md` Phase 4 — Visual regression suite (Not started)
 
