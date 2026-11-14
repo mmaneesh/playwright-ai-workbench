@@ -211,15 +211,13 @@ non-flaky way to assert its slowness is ever found (see "Not covered" below).
 
 ### 2026-11-14 - Stage 4 - Test automation (`SC-011`-`SC-015`, visual suite)
 
-- Confidence: 8
-- Unknowns: whether the new CI matrix entry (`.github/workflows/playwright.yml`,
-  `visual`) actually passes on a real `ubuntu-latest` run has not been
-  checked yet - only a local Docker run pinned to `linux/amd64` was verified
-  (15/15 passed against the committed baselines, re-run twice: once writing
-  baselines, once verifying against them).
+- Confidence: 9
+- Unknowns: none.
 - Rationale: `R-008` and `SC-011`-`SC-015` trace directly to the already-open
   gap this stage was scoped to close (`PLAN.md` Phase 4); baselines were
   generated and re-verified in Docker specifically to avoid the
-  arm64-laptop-vs-amd64-CI rendering mismatch, not assumed safe. Held back
-  from High only because the CI leg itself is unverified pending an actual
-  run.
+  arm64-laptop-vs-amd64-CI rendering mismatch, not assumed safe. The one
+  remaining unknown - whether the new CI matrix entry actually passes on a
+  real `ubuntu-latest` run, not just locally in Docker - was closed by
+  PR #5 (`gh pr checks`): `test (visual, visual, chromium webkit)` passed
+  alongside every other leg.

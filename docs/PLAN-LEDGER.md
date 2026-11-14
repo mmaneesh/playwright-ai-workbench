@@ -83,9 +83,10 @@ in `INTENT.md` §3/§5/§11 - this is the checklist, not the rationale.
       afterward: 15/15 passed. `npm run check` passes.
 - [x] ~~Wired into the CI matrix.~~ `.github/workflows/playwright.yml`'s
       `test` job matrix: new `visual` entry, `browser: 'chromium webkit'` (both
-      engines needed - see above). **Open**: not yet confirmed by an actual CI
-      run (`CORE_PRINCIPLES.md` §6: "local pass is not CI coverage") - needs a
-      push/PR to verify the matrix entry executes as configured.
+      engines needed - see above). Verified on PR #5 (`gh pr checks`):
+      `test (visual, visual, chromium webkit)` passed on a real
+      `ubuntu-latest` run, alongside every other existing leg - not just a
+      local Docker pass.
 
 ## `PLAN.md` Phase 5 — Database testing, scoping only (Not started)
 
