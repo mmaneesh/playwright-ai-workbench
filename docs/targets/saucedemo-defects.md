@@ -7,7 +7,7 @@
 - **Status**: Active Ledger
 - **Defect tool**: none
 
-Record format, severity, levels, oracle names and statuses are defined in `docs/templates/DEFECT_LEDGER.template.md` and `docs/templates/README.md`.
+Record format, severity, levels, oracle names and statuses are defined in `docs/templates/DEFECT_LEDGER.template.md` and `docs/templates/README.md`. Scenarios and test cases now live in `specs/saucedemo.plan.md`.
 
 ---
 
@@ -19,9 +19,11 @@ Logging rules are in section 1 of `docs/templates/DEFECT_LEDGER.template.md`.
 
 ## 2. Summary Table
 
-| Defect ID | Title                                                                      | Severity | Level | Oracle                              | Found by | Status  | Ticket key |
-| :-------- | :------------------------------------------------------------------------- | :------- | :---- | :---------------------------------- | :------- | :------ | :--------- |
-| `DEF-001` | Pressing Enter on checkout step one submits "Cancel" instead of "Continue" | Medium   | UI    | Explainability, Comparable products | Phase 1  | Triaged | none       |
+| Defect ID | Title                                                                        | Severity | Level | Oracle                              | Found by | Status   | Ticket key |
+| :-------- | :--------------------------------------------------------------------------- | :------- | :---- | :---------------------------------- | :------- | :------- | :--------- |
+| `DEF-001` | Pressing Enter on checkout step one submits "Cancel" instead of "Continue"   | Medium   | UI    | Explainability, Comparable products | Stage 1  | Triaged  | none       |
+| `DEF-002` | `problem_user` sees the identical broken placeholder image for every product | Low      | UI    | Claims                              | `CH-001` | Accepted | none       |
+| `DEF-003` | `error_user` throws an uncaught exception while filling the checkout form    | Low      | UI    | Conformance to spec                 | `CH-001` | Accepted | none       |
 
 ---
 
@@ -33,7 +35,7 @@ Logging rules are in section 1 of `docs/templates/DEFECT_LEDGER.template.md`.
 - **Level**: UI
 - **Oracle**: Explainability (the user gets no indication their checkout was just cancelled), Comparable products (breaks the universal "Enter submits the primary form action" convention)
 - **Status**: Triaged
-- **Found by**: Phase 1
+- **Found by**: Stage 1
 - **Route or endpoint**: `/checkout-step-one.html`
 - **Element or field**: the `firstName`/`lastName`/`postalCode` form and its two submit controls
 
@@ -75,3 +77,11 @@ formChildrenOrder: ["firstName", "lastName", "postalCode", "cancel", "continue"]
 
 - Live verification: in-browser JS inspection and manual Enter-key reproduction against `https://www.saucedemo.com/`, 2026-10-29.
 - Automated reproduction: `tests/ui/saucedemo/checkout.authenticated.spec.ts` ("SC-006 pressing Enter on checkout step one does not cancel the order"), confirmed on the 2026-10-29 Phase 5 run. `test-results/` from that run is not durable (`D-015`); reproduce on demand with `npx playwright test --config=config/playwright.ui.config.ts tests/ui/saucedemo/checkout.authenticated.spec.ts -g SC-006`.
+
+`DEF-002` and `DEF-003` are intentionally not given a full write-up: both are
+`Accepted`, seeded-defect-account findings that exist to prove the suite
+detects a defect class, not real regressions a developer needs to act on
+(`docs/templates/DEFECT_LEDGER.template.md`'s "only for a real, non-trivial
+defect" rule). Their reproduction lives in the test itself
+(`tests/ui/saucedemo/seeded-accounts.spec.ts`, `SC-008` and `SC-010`) and their
+one-line summary in `specs/saucedemo.plan.md`.

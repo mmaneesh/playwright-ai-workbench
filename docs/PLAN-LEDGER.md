@@ -1,150 +1,130 @@
 # Agreed Scope and Verification Ledger
 
-Updated: October 29, 2026.
+Updated: 2026-11-14.
 
-TestDino Demo Store was removed as a target on 2026-10-29 (all files, config and doc references deleted or repointed) in favor of Sauce Demo, a second target chosen to prove the framework and the `storageState` auth pattern against a genuinely different, auth-gated application. Phase entries below that reference TestDino describe work that happened and is retained for history, per `D-007`; they are not current state.
+This is the single place to check what's actually done versus pending -
+`PLAN.md` records the agreed _plan_, this file tracks _progress against it_
+with a checkbox per concrete item, struck through only once verified, never
+on intent alone. If this file and reality disagree, this file is wrong and
+gets fixed, not reality.
 
-`PLAN.md` records the agreed scope. This ledger records evidence and outstanding work; implementation alone does not imply approval. The full roadmap is retained as agreed in architectural planning. Pending roadmap entries do not authorize implementation; review and approval are required before each later phase.
+TestDino Demo Store was removed as a target on 2026-10-29 (all files, config
+and doc references deleted or repointed) in favor of Sauce Demo. Entries below
+that reference TestDino describe work that happened and is retained for
+history, per `D-007`; they are not current state.
 
 ---
 
 ## Target Applications Registry
 
-- **API Contract Target**: Gaurav Khurana Bill Payment API (`https://billpay-api.gauravkhurana-practice-api.workers.dev`)
-  - Auth: `X-API-Key: demo-api-key-123`
-- **Primary UI / Visual / Audit Target**: Sauce Demo / Swag Labs (`https://www.saucedemo.com`)
-  - Configured in `env-config/saucedemo.env` and active `env-config/dev.env` (`.env`)
-  - Workbook: [`docs/targets/saucedemo.md`](targets/saucedemo.md); ledger: [`docs/targets/saucedemo-defects.md`](targets/saucedemo-defects.md)
-- **Archived UI Target**: LambdaTest eCommerce Playground (`https://ecommerce-playground.lambdatest.io`)
-  - Preserved in `env-config/lambdatest.env` for environment toggling via `npm run env:config -- lambdatest`; never exercised by any current spec
+Moved to [`docs/targets/REGISTRY.md`](targets/REGISTRY.md), which also doubles
+as the keyword list `npm run docs:check` greps the process layer against
+(`INTENT.md` §2) - one file, one owner, mechanically checked.
 
 ---
 
-## Phase 1 — Foundations Status (Verified)
+## `PLAN.md` Phase 1 — Foundations (Verified, complete)
 
-- [x] ~~P1.1 Authoritative blueprint: `CORE_PRINCIPLES.md` defining Commands, Code Standards, Guardrails, Folder Structure, Naming Conventions, and Workflow & Approvals.~~ Implemented at repository root with all 6 core sections.
-- [x] ~~P1.2 Signal-only orchestrators: Tabular `CLAUDE.md`, `AGENTS.md`, and `GEMINI.md` free from task checklists and prose filler.~~ Implemented across all 3 AI entrypoints with dense tabular quick-reference format.
-- [x] ~~P1.3 Suite configurations: 4 independent configs (`playwright.ui.config.ts`, `playwright.api.config.ts`, `playwright.visual.config.ts`, `playwright.audit.config.ts`).~~ Verified: test discovery listed all suites cleanly across all 4 configs without path prefixes.
-- [x] ~~P1.4 Environment management: Atomic `env:config` (`dev`, `stg`, `uat`, `prod`, `saucedemo`, `lambdatest`) with fallback defaults.~~ Verified: `npm run env:config -- <env>` copies templates cleanly to `.env`.
-- [x] ~~P1.5 Single-stack guardrails: Pure TypeScript rule checker (`scripts/guardrails/check-rules.ts`) blocking forbidden anti-patterns (`waitForTimeout`, XPath, `any`, untyped JSON, pseudo-Gherkin).~~ Verified: executed via `tsx` with 0 violations; wired as a Claude Code PreToolUse hook.
-- [x] ~~P1.6 Docker setup: `Dockerfile` and `docker-compose.yml` for containerized visual snapshot execution.~~ Configured with dedicated `visual-tests` service and workspace volume mounting.
-- [x] ~~P1.7 Package and quality tooling: Strict TypeScript path aliases, ESLint with `eslint-plugin-playwright`, Prettier, Husky, lint-staged.~~ Verified: `npm run check` passed with exit code 0.
-- [x] ~~P1.8 Directory structure: `page-objects/` (pages & components), `fixtures/`, `tests/` (ui, api, visual, audit), `test-data/`, `types/`, `helpers/`.~~ Standardized on kebab-case directories.
-- [x] ~~P1.9 Foundations verification: `npm run check`, suite discovery across all 4 configs, and atomic env switching.~~ Fully verified on local environment.
-
----
-
-## Phase 3 — Authentication, API Contracts, and Full-Stack Data Patterns (Verified)
-
-- [x] ~~P3.1 Contract validation with inferred runtime types and useful errors.~~ Implemented comprehensive runtime Zod schemas in `types/schemas/` (`health.schema.ts`, `biller.schema.ts`, `bill.schema.ts`, `payment.schema.ts`, `file.schema.ts`, `error.schema.ts`, `common.schema.ts`) with zero `any`.
-- [x] ~~P3.2 Independent API suite execution & token handling.~~ Implemented `fixtures/api.fixture.ts` providing `authedRequest` with API key headers.
-- [x] ~~P3.3 Full API contract test suite (13/13 passing in ~11.5s via `npm run test:api`).~~
-  - [`health.spec.ts`](file:///c:/Mstar_Repositories/playwright-ai-workbench/tests/api/health.spec.ts): Unauthenticated service health verification.
-  - [`categories.spec.ts`](file:///c:/Mstar_Repositories/playwright-ai-workbench/tests/api/categories.spec.ts): Reference categories contract.
-  - [`billers.spec.ts`](file:///c:/Mstar_Repositories/playwright-ai-workbench/tests/api/billers.spec.ts): Catalog pagination and category filtering.
-  - [`bills.spec.ts`](file:///c:/Mstar_Repositories/playwright-ai-workbench/tests/api/bills.spec.ts): User bill queries and individual ID contract.
-  - [`auth.spec.ts`](file:///c:/Mstar_Repositories/playwright-ai-workbench/tests/api/auth.spec.ts): Negative auth contracts (401 unauthenticated, 401 invalid token, 404 not found).
-  - [`files.spec.ts`](file:///c:/Mstar_Repositories/playwright-ai-workbench/tests/api/files.spec.ts): Multipart binary PDF upload and metadata contract.
-  - [`resiliency.spec.ts`](file:///c:/Mstar_Repositories/playwright-ai-workbench/tests/api/resiliency.spec.ts): Server latency delay contract and 429 rate limit error envelope.
-  - [`billing-lifecycle.spec.ts`](file:///c:/Mstar_Repositories/playwright-ai-workbench/tests/api/billing-lifecycle.spec.ts): 6-step stateful response chaining flow across Discover biller $\rightarrow$ Create bill $\rightarrow$ Fetch payment method $\rightarrow$ Pay bill $\rightarrow$ Verify `paid` status $\rightarrow$ Validate transaction receipt.
+- [x] ~~Authoritative blueprint: `CORE_PRINCIPLES.md` covering Commands, Code Standards, Guardrails, Folder Structure, Naming Conventions, Workflow & Approvals.~~
+- [x] ~~Signal-only orchestrators: tabular `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`.~~
+- [x] ~~4 independent suite configs: `playwright.ui/api/visual/audit.config.ts`.~~ Verified: discovery clean across all 4.
+- [x] ~~Atomic env switcher `npm run env:config -- <env>`.~~ Verified: copies cleanly to `.env`.
+- [x] ~~Guardrail checker `scripts/guardrails/check-rules.ts`.~~ Verified: 0 violations, wired as a PreToolUse hook.
+- [x] ~~Docker baseline (`Dockerfile`, `docker-compose.yml`).~~
+- [x] ~~Quality tooling: TS strict mode, path aliases, ESLint, Prettier, Husky, lint-staged.~~ Verified: `npm run check` exit 0.
+- [x] ~~Directory structure (`page-objects/`, `fixtures/`, `tests/`, `test-data/`, `types/`, `helpers/`).~~
 
 ---
 
-## Phase 4 — Visual, Accessibility, Component, and Advanced Coverage
+## `PLAN.md` Phase 2 — Lean agentic workflow (Verified, complete 2026-11-14)
 
-### 4.1 Universal Domain-Agnostic Audit Suite (Verified with Honest Evidence)
+Commits `3c35388`, `7186750`. Full item-by-item detail of what moved where is
+in `INTENT.md` §3/§5/§11 - this is the checklist, not the rationale.
 
-- [x] ~~P4.1.1 WCAG 2.1 AA Accessibility Specification ([`tests/audit/accessibility.spec.ts`](file:///c:/Mstar_Repositories/playwright-ai-workbench/tests/audit/accessibility.spec.ts)).~~
-  - Full catalog of WCAG 2.1 AA success criteria across all 4 principles (Perceivable, Operable, Understandable, Robust) documented in test comments.
-  - Full `@axe-core/playwright` scan (`wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`) with zero rule suppressions or artificial exclusions.
-  - Verified accessible programmatic names for interactive form inputs and valid `html[lang]`.
-  - Honest diagnostic evidence: surfaced real application defects (contrast failures WCAG 1.4.3, unlabelled toggle WCAG 2.4.4/4.1.2, missing image alt WCAG 1.1.1).
-- [x] ~~P4.1.2 Core Web Vitals & Performance Audit ([`tests/audit/web-vitals.spec.ts`](file:///c:/Mstar_Repositories/playwright-ai-workbench/tests/audit/web-vitals.spec.ts)).~~
-  - Browser-native `PerformanceObserver` measuring LCP, CLS, FCP, and TTFB against established performance budgets.
-- [x] ~~P4.1.3 SEO & Image Lazy-Loading Audit ([`tests/audit/seo.spec.ts`](file:///c:/Mstar_Repositories/playwright-ai-workbench/tests/audit/seo.spec.ts)).~~
-  - Structural SEO metadata validation (`<title>`, `<meta name="description">`, viewport, Open Graph).
-  - Strict image `alt` verification (WCAG 1.1.1).
-  - Below-the-fold image lazy loading verification (evaluating native `loading="lazy"` and deferred data-attributes / classes).
-
-### 4.2 Outstanding Phase 4 & UI Reference Suite Items (Pending)
-
-- [x] ~~P4.2.1 UI Reference Suite for TestDino Store (`tests/ui/`)~~ — scope reduced by user to a small best-practice reference set. Verified 2026-10-28: 3 specs (`home`, `products` x2) pass on chromium/firefox/webkit (9/9); `npm run check` exit 0. Login omitted (no published demo credentials). Old the-internet specs/page objects removed:
-  - Modular components: `HeaderComponent` (search, navigation, cart badge), `ProductCardComponent` (pricing, rating, add to cart).
-  - Modular pages: `HomePage` (featured products, banner navigation), `LoginPage` (authentication flow), `CartPage` (cart item verification).
-  - End-to-end customer workflows with fixture-based DI and auto-waiting assertions.
-- [ ] P4.2.2 Visual Regression Suite (`tests/visual/`):
-  - Deterministic multi-viewport snapshots (`Desktop Chrome`, `Tablet`, `Mobile`).
-  - Dynamic masking for animated carousel/banner widgets.
-  - Dockerized execution (`npm run test:visual:docker`).
+- [x] ~~`specs/TEMPLATE.md` created; proven on a real target as `specs/saucedemo.plan.md`~~, replacing the retired 443-line Sauce Demo workbook with zero scenarios or defects dropped.
+- [x] ~~`docs/templates/README.md` trimmed to the shared vocabulary~~ (IDs, priority math, SFDIPOT, the 3 tours, the 11 oracles, test techniques, automation-decision scoring, defect severity/status, the confidence rubric).
+- [x] ~~`explorer` agent rewritten~~: Stage 0 (Intake) + Stage 1 (Explore), full checklist and 7 guardrails inline, no external 285-line template to read first.
+- [x] ~~`verifier` agent created~~ (closed the gap `D-004` named but never built): Stage 5, read-only tools only (no Edit/Write), the 12-area review table inline.
+- [x] ~~`scenarios`, `test-spec`, `pr-review` skills rewritten; `automation-design` and `evidence` retired into `test-spec`.~~
+- [x] ~~Mechanical agnosticism check added~~ (`check-docs.ts` + `docs/targets/REGISTRY.md`) - fails the build if any agent/skill names a specific target.
+- [x] ~~`AGENTS.md` rewritten lean.~~
+- [x] ~~`docs/LOG.md` pruned~~ of 5 entries (`D-001`, `D-005`, `D-006`, `D-011`, `D-020`, `L-004`) whose cause no longer exists.
+- [x] ~~6 retired phase templates deleted~~ (`01-EXPLORATION` through `06-PR-REVIEW`).
+- [x] ~~Confidence rubric added~~: `docs/templates/README.md` (the one definition), `INTENT.md` §3/§4, all 4 agent/skill files report it.
+- [ ] **Open**: `.mcp.json`/`.agents/mcp_config.json`/`.codex/config.toml` still hardcode the Sauce Demo/BillPay origins in `--allowed-origins` - a real agnosticism gap (`INTENT.md` §2). Stage 0 Intake now says to add a new target's origin there by hand; no mechanical check yet that this list matches `docs/targets/REGISTRY.md`. Folded into Phase 3 below.
+- [ ] **Open**: the confidence rubric itself is not mechanically enforced - nothing verifies a stage actually reported it, or that the gate (`Confidence >= 8` and `Unknowns: none`) was honestly met. Folded into Phase 3 below.
 
 ---
 
-## Phase 5 — Supervised AI Harness, Specialist Roles, & Scaffolding Architecture (Partially Completed)
+## `PLAN.md` Phase 3 — Evals (Verified, complete with one honest caveat)
 
-- [x] ~~P5.1 Standardized 6-Phase Engineering Lifecycle & Reusable Blueprint Templates (`docs/templates/`).~~
-  - `01-EXPLORATION.template.md`: Exhaustive 12-point context-driven & technical reconnaissance checklist (Bach/Bolton SFDPOT & FEW HICCUPPS, Weinberg, Pradeep/Ajay, Hendrickson).
-  - `02-SCENARIOS.template.md`: Risk-ranked scenario matrices (P0 Smoke, P1 Regression, P2 Edge) with Goldilocks & boundary heuristics (Kaner, Crispin/Gregory, Hendrickson, Jones).
-  - `03-AUTOMATION-DESIGN.template.md`: Component/page encapsulation, scoped locators, and fixture DI wiring (Fowler, Stewart, Marcano/Palmer, Lushnikov, O'Brien).
-  - `04-TEST-SPEC.template.md`: Role-first, web-first, flake-immune test implementation blueprint (Dodds, O'Brien, Judis, Hric, Bahmutov).
-  - `05-EVIDENCE.template.md`: Raw terminal execution logs, root-cause triage, and RIMGEA bug advocacy (Kaner, Bolton).
-  - `06-PR-REVIEW.template.md`: Continuous Delivery 4-in-1 quality gate verification and Test Desiderata review sign-off (Farley, Beck, Page).
-  - `DEFECT_LEDGER.template.md`: Standardized RIMGEA defect tracking ledger with `FEW HICCUPPS` oracle classification and `DEF-XXX` IDs.
-- [x] ~~P5.2 Single-Workbook Target Architecture (`docs/targets/`).~~
-  - Unified living workbook: `docs/targets/<site>.md` containing all 5 phases in one cohesive document.
-  - Dedicated living defect ledger: `docs/targets/<site>-defects.md` for objective RIMGEA bug reporting.
-  - Initialized for the then-primary target (TestDino, structured with all 12 exploration points, and its defect ledger); both removed 2026-10-29 in favor of Sauce Demo's `docs/targets/saucedemo.md`.
-- [x] ~~P5.3 Agent Skills Library.~~
-  - Cross-platform AI skills created in `.agents/skills/` and `.claude/skills/`: `explore`, `scenarios`, `design`, `test-spec`, `evidence`, `pr-review`.
-- [x] ~~P5.4 Autonomous Exploration Agent Definition & MCP Wiring.~~
-  - Agent persona specification authored in `.agents/agents/explorer.md` and `.claude/agents/explorer.md`.
-  - Antigravity subagent `explorer` registered with the full 12-point context-driven reconnaissance system prompt.
-  - MCP authorization configured in `.mcp.json`, `.agents/mcp_config.json`, and `.codex/config.toml`, now allowing `https://www.saucedemo.com`.
-- [x] ~~P5.5 Execution of Phase 1 Reconnaissance on TestDino~~ — scoped to Home and /products only (6 defects logged, now removed with the target). Original items:
-  - Run browser exploration probe across all 12 points.
-  - Populate Section 1 of the target workbook.
-  - Record any observed bugs in the target's defect ledger.
+- [x] ~~Guardrail-checker eval~~ (`scripts/guardrails/check-rules.eval.ts`, `npm run guardrails:eval`, wired into `npm run check`): 11 known-bad/known-good cases. Found and fixed a real bug while building it - the `NO_XPATH` pattern failed on a common XPath like `"//button[@id='submit']"` because its exclusion-based middle broke on an embedded quote of the other kind.
+- [x] ~~Explorer eval~~ (`scripts/evals/explorer.eval.ts`, `npm run eval:explorer`): asserts `specs/saucedemo.plan.md` still names `problem_user`'s broken image (`DEF-002`), `error_user`'s exception (`DEF-003`), `DEF-001`, and the two explicit not-covered accounts. **Honest scope**: this is a regression guard on recorded ground truth, not a live re-run of the explorer agent against Sauce Demo - a genuine live re-run would need a real LLM call and a browser, too costly/flaky to run on every `npm run check`. Verified it catches an injected regression (renamed a finding) before trusting it.
+- [x] ~~Mechanical check that a `specs/<target>.plan.md` contains a well-formed `## Confidence Log`~~ (`checkConfidenceBlocks()` in `check-docs.ts`): the three fields present, `Confidence` an integer 1-10, per entry. Verified it actually catches a broken entry (out-of-range score, missing field) before trusting it. `specs/saucedemo.plan.md` backfilled with real, honestly-scored entries for the work already done.
+- [x] ~~Mechanical check that `--allowed-origins` matches `docs/targets/REGISTRY.md`~~ (`checkAllowedOrigins()` in `check-docs.ts`): added an Origin column to the registry; every active target's origin must appear in all three MCP configs, and any origin in a config that isn't an active registry target is flagged as orphaned. Verified it catches an injected stale origin before trusting it. Closes the Phase 2 agnosticism gap above.
+- [ ] **Open, not done today**: framework self-tests for the docs checker (`check-docs.ts`) itself are not persisted as an automated eval, unlike the guardrail checker's. Each new check above (`checkConfidenceBlocks`, `checkAllowedOrigins`) was manually verified during this session to catch an injected failure and then restored - real evidence it works today, but not a standing regression test the way `check-rules.eval.ts` is. `check-docs.ts`'s functions read hardcoded relative paths directly rather than taking an injectable base directory, which would need a small refactor first to test cleanly - deferred rather than rushed.
+- [x] ~~Cleanup pass against `INTENT.md`: README.md's entire "6-phase workflow" section, its project-structure listing, skills/agents table, and "Adapting this to your own application" guide all still described the retired process as current - rewritten to the Stage 0-5 pipeline. `CORE_PRINCIPLES.md`'s one stray "Phase 2" reference fixed to "Stage 2."~~ Swept the rest of the repo (CI workflow, `.mcp.json`/`.agents`/`.codex` configs, orphaned files, empty directories, TestDino leftovers) - nothing else found.
 
----
+## `PLAN.md` Phase 4 — Visual regression suite (Verified, complete with one open item)
 
-## Punch List — 2026-10-29 Review Findings (Fixed 2026-10-29)
+- [x] ~~Scope agreed: which pages, which viewports, how many baseline variants.~~
+      5 scenarios (`SC-011`-`SC-015`: login, inventory, cart, checkout info step,
+      checkout overview step) x 3 projects (`desktop-chrome`/`tablet`/`mobile`,
+      the latter two `webkit`-engine per their iPad/iPhone device presets) = 15
+      screenshots. New Risk `R-008` added to `specs/saucedemo.plan.md`.
+- [x] ~~Specs written with committed, Docker-generated baselines.~~
+      `tests/visual/{login,inventory,cart,checkout}.spec.ts`. Baselines generated
+      via `docker compose run --rm visual-tests npm run test:visual --
+--update-snapshots` (approval asked and given first, per
+      `CORE_PRINCIPLES.md` §6). `docker-compose.yml`'s `visual-tests` service
+      pinned to `platform: linux/amd64` so baselines generated on an Apple
+      Silicon (arm64) laptop still match CI's amd64 `ubuntu-latest` runners -
+      verified by re-running the suite against the committed baselines
+      afterward: 15/15 passed. `npm run check` passes.
+- [x] ~~Wired into the CI matrix.~~ `.github/workflows/playwright.yml`'s
+      `test` job matrix: new `visual` entry, `browser: 'chromium webkit'` (both
+      engines needed - see above). Verified on PR #5 (`gh pr checks`):
+      `test (visual, visual, chromium webkit)` passed on a real
+      `ubuntu-latest` run, alongside every other existing leg - not just a
+      local Docker pass.
 
-Found during an external review of the Sauce Demo build-out, verified against the actual code before being recorded here (none of these are assumed). Ordered by actual severity, not discovery order. The High/Medium items below were fixed and re-verified (`npm run check` + live `saucedemo` runs) the same day.
+## `PLAN.md` Phase 5 — Database testing, scoping only (Not started)
 
-**High — correctness bugs that let real regressions pass silently:**
-
-- [x] ~~`tests/audit/web-vitals.spec.ts` — FCP falls back to `0` when no entry is found...~~ Fixed: FCP, LCP and CLS are now all read from `PerformanceObserver`s with a real 2s settle window (confirmed live that `first-contentful-paint` on this target can land ~2.5s after `load` in headless Chromium); a missing FCP entry now fails the assertion instead of silently passing.
-- [x] ~~`.github/workflows/playwright.yml` `independence-check` job — runs `--project=chromium --repeat-each=2`...~~ Fixed: job now also runs `--project=chromium-authenticated`. Verified locally that `--repeat-each` runs the `setup` dependency once and repeats only the authenticated project's own tests, so this covers cart/checkout state without re-running login N times.
-
-**Medium — weak assertions / stale docs:**
-
-- [x] ~~`tests/ui/saucedemo/inventory.authenticated.spec.ts` (`SC-007` sort test) — passes vacuously on an empty array.~~ Fixed: added an explicit non-empty assertion before the sort comparison.
-- [x] ~~`tests/ui/saucedemo/checkout.authenticated.spec.ts` (`SC-005`) — only asserts `toContainText('Total:')`.~~ Fixed: now parses `subtotal-label`/`tax-label`/`total-label` and asserts total equals item total + tax.
-- [x] ~~`README.md:242` — still says "5-way matrix"...~~ Fixed: now says "8-way matrix" with all legs named; roadmap line corrected to note checkout/cart are covered, only visual is not.
-- [x] ~~`docs/targets/saucedemo.md` Section 5 (Evidence) — still says "18 of 18 passed"...~~ Fixed: re-ran the live suite (22 tests, 22 passed incl. `SC-006` as an expected known-defect failure on all 3 authenticated browsers) and rewrote Section 5 from that real run.
-
-**Already known, not new — still open from before:**
-
-- [ ] Visual suite has zero specs (`tests/visual/`) — deliberately out of scope for this target so far, config is ready.
-- [ ] Backend data isolation/cleanup for the BillPay API suite (`tests/api/billing-lifecycle.spec.ts`) — stateful test data with no visible teardown.
-- [ ] Config validation and framework self-tests (demo-fallback behavior, Docker credential propagation, regression tests for the custom guardrail/docs checkers) — general maturity gap, not yet started.
+- [ ] Decide: bring a concrete target with real DB access, or document a
+      through-the-API/UI data-integrity testing strategy. Today's targets
+      (Sauce Demo, the BillPay practice API) expose no direct DB access.
 
 ---
 
-## Remaining Phases (Pending Individual Approval)
+## Historical build-out (completed before the 2026-11-14 redesign; retained for history, not live tracking)
 
-### Phase 2 — Quality and Configuration Hardening
+### Authentication, API Contracts, and Full-Stack Data Patterns (Verified)
 
-- [ ] P2.1 Define retry, flaky-test, and quarantine policy.
-- [ ] P2.2 Add dependency/container/browser version alignment and update workflow.
+- [x] ~~Contract validation with inferred runtime types.~~ Zod schemas in `types/schemas/` (`health`, `biller`, `bill`, `payment`, `file`, `error`, `common`, `user`), zero `any`.
+- [x] ~~Independent API suite execution & token handling.~~ `fixtures/api.fixture.ts` providing `authedRequest`.
+- [x] ~~Full API contract test suite~~ (`tests/api/`: `health`, `categories`, `billers`, `bills`, `auth`, `files`, `resiliency`, `billing-lifecycle`).
+- [x] ~~Per-run API data isolation~~ (2026-11-14, commit `6f776ba`): `billing-lifecycle.spec.ts` no longer mutates the shared `user-demo-001` account - a dedicated `isolatedUser` fixture creates a unique user + payment method per run. Stress-tested with two concurrent runs, no collision.
 
-### Phase 6 — Team Integrations & MCP Profiles
+### Visual, Accessibility, Component, and Advanced Coverage
 
-- [ ] P6.1 Validate optional GitHub issue / CI reporter integration.
+- [x] ~~WCAG 2.1 AA Accessibility Specification~~ (`tests/audit/accessibility.spec.ts`): full `@axe-core/playwright` scan, zero suppressions.
+- [x] ~~Core Web Vitals & Performance Audit~~ (`tests/audit/web-vitals.spec.ts`): `PerformanceObserver`-based LCP/CLS/FCP/TTFB, fixed 2026-11-10 so a missing measurement fails instead of defaulting to 0.
+- [x] ~~SEO & Image Lazy-Loading Audit~~ (`tests/audit/seo.spec.ts`).
+- [x] ~~UI reference suite for Sauce Demo~~ (`tests/ui/saucedemo/`) - see `specs/saucedemo.plan.md` for the live scenario list; visual regression is tracked as `PLAN.md` Phase 4 above, not here.
 
-### Phase 7 — Evaluations and Durable Feedback Loops
+### Supervised AI Harness, Specialist Roles & Scaffolding (superseded 2026-11-14 by `PLAN.md` Phase 2 above)
 
-- [ ] P7.1 Benchmark scaffold adaptability when pointed at an arbitrary new domain.
+- [x] ~~6-Phase Engineering Lifecycle & Blueprint Templates (`docs/templates/`).~~ Superseded: all 6 phase templates retired, substance moved per `INTENT.md` §3/§5/§11.
+- [x] ~~Single-Workbook Target Architecture.~~ Superseded: `docs/targets/<site>.md` retired in favor of `specs/<target>.plan.md`.
+- [x] ~~Agent Skills Library.~~ Superseded set (2026-11-14): `explore`, `scenarios`, `test-spec`, `pr-review`.
+- [x] ~~Autonomous Exploration Agent Definition & MCP Wiring.~~ Superseded: `explorer` now also covers Stage 0 Intake; `verifier` added for Stage 5.
+- [x] ~~Execution of Phase 1 Reconnaissance on TestDino~~ (6 defects logged, removed with the target 2026-10-29).
 
-### Phase 8 — Scalable Delivery & Release Readiness
+### 2026-10-29 Review Punch List (Fixed 2026-10-29, items since fully closed noted)
 
-- [ ] P8.1 Final clean-clone verification and scaffolding playbook documentation.
+- [x] ~~`web-vitals.spec.ts` FCP falling back to `0`.~~ Fixed 2026-10-29.
+- [x] ~~CI `independence-check` missing `chromium-authenticated`.~~ Fixed 2026-10-29.
+- [x] ~~`SC-007` sort test passing vacuously on an empty array.~~ Fixed 2026-10-29.
+- [x] ~~`SC-005` only asserting `toContainText('Total:')`.~~ Fixed 2026-10-29.
+- [x] ~~README "5-way matrix" / stale workbook evidence.~~ Fixed 2026-10-29; the workbook itself was later retired 2026-11-14.
+- [x] ~~Backend data isolation/cleanup for the BillPay API suite.~~ Fixed 2026-11-14 (`6f776ba`) - tracked above, not re-listed as open.

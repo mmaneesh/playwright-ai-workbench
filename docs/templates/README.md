@@ -1,49 +1,18 @@
-# Phase Templates — Map, Vocabulary and Handoffs
+# Shared QA Vocabulary
 
-This file is the single source for how the six phase templates fit together. Templates reference it and never redefine what is defined here. If a template contradicts this file, this file wins and the template is the bug.
+Single source for the terms, IDs, and scoring used across every target's spec
+file (`specs/<target>.plan.md`) and defect ledger. Referenced, never restated -
+per `INTENT.md` §3, a fact lives here once.
 
-## Where things live
+## IDs
 
-| Document                         | Holds                                                                       |
-| :------------------------------- | :-------------------------------------------------------------------------- |
-| `AGENTS.md`                      | Entry point for any agent: read order and the rules that cannot wait        |
-| `CORE_PRINCIPLES.md`             | Code rules: standards, guardrails, structure, naming, approval gates        |
-| `docs/templates/` (this folder)  | How we work: the phases, their boundaries, shared vocabulary                |
-| `docs/targets/<site>.md`         | The workbook: what we found and decided for one application                 |
-| `docs/targets/evidence/`         | Raw run logs and durable defect artifacts (`test-results/` is not evidence) |
-| `docs/targets/<site>-defects.md` | The defect ledger for that application                                      |
-| `docs/LOG.md`                    | Decisions (`D-nnn`) and lessons from mistakes (`L-nnn`), all targets        |
+`R-nnn` risk, `SC-nnn` functional or API scenario, `VIS-nnn` visual scenario,
+`AUD-nnn` audit scenario, `CH-nnn` exploratory charter, `DEF-nnn` defect,
+`D-nnn` decision, `L-nnn` lesson. IDs are never reused. Decisions and lessons
+belong to `docs/LOG.md`; everything else belongs to the target's own spec file
+or defect ledger.
 
-## Phase map
-
-Each phase owns its content. A later phase references earlier content by ID or section and never restates it.
-
-| #   | Phase             | Question it answers              | Reads                                                                | Writes (workbook)            | Owns                                                                                                        | Must NOT contain                                         |
-| :-- | :---------------- | :------------------------------- | :------------------------------------------------------------------- | :--------------------------- | :---------------------------------------------------------------------------------------------------------- | :------------------------------------------------------- |
-| 1   | Explore           | What is the application, really? | Live app, supplied docs (not the feature context)                    | Section 1                    | Facts, observations, oracle findings, testability, defects found                                            | Decisions about what to test                             |
-| 2   | Scenarios         | What should we check, and why?   | Section 1                                                            | Section 2                    | Risks, priorities, techniques, scenarios, charters, coverage gaps                                           | Locators, page or component names, fixtures, spec files  |
-| 3   | Automation design | How is the test code structured? | Approved Section 2; structural facts in Section 1; the existing repo | Section 3                    | Reuse decisions, scenario-to-test mapping, pages, components, fixtures, data, state setup, execution design | Why a scenario exists; locator choices; assertions; code |
-| 4   | Test spec         | How is each check written?       | Sections 1.7, 2 and 3                                                | Section 4 and the code       | Locator choices and exceptions, waits, assertions by reference, known-defect handling, the code             | New scenarios; new structure; run evidence               |
-| 5   | Evidence          | What happened when we ran it?    | The code, Sections 2 and 4, the handoff                              | Section 5 and ledger entries | Run record, results by scenario, triage, defects raised, reporting records                                  | Scope opinions; new scenarios; code edits during a run   |
-| 6   | Review            | Is it fit to merge?              | The diff, Sections 2–5 by link, check output                         | Section 6                    | Findings, a recommended verdict, and the human decision                                                     | New scenarios; rewriting code                            |
-
-Section N of the workbook belongs to Phase N. Its subsections N.1, N.2, and so on are the template's content sections in order, after the guardrails.
-
-Phase 4 is where page-object and spec code is written. Phase 3 is design only. The code is the specification, so Section 4 records only decisions the code cannot say.
-
-## Modes
-
-- **Full**: a new target or a new feature area. Fill every section.
-- **Lite**: one feature or one change. Each template names the few sections to fill. Sign-off and handoff are always required.
-- **Partial** (Phase 1 only): explore only the area a change touches. See the Partial exploration section of the Phase 1 template.
-
-## Shared vocabulary
-
-### IDs
-
-`R-nnn` risk, `SC-nnn` functional or API scenario, `VIS-nnn` visual scenario, `AUD-nnn` audit scenario, `CH-nnn` exploratory charter, `DEF-nnn` defect, `D-nnn` decision, `L-nnn` lesson. `External refs` is free text linking to items in a team's own tools (ticket and criterion, test case). IDs are never reused. Each prefix has one owner: risks, scenarios and charters belong to Phase 2, defects to the defect ledger, decisions and lessons to `docs/LOG.md`.
-
-### Priority
+## Priority
 
 | Priority | Tag           | Meaning                                                    | Cadence                 |
 | :------- | :------------ | :--------------------------------------------------------- | :---------------------- |
@@ -51,7 +20,8 @@ Phase 4 is where page-object and spec code is written. Phase 3 is design only. T
 | `P1`     | `@regression` | Secondary workflows, validation, state changes             | Nightly or release gate |
 | `P2`     | `@edge`       | Boundaries, hostile input, persistence, empty states       | Weekly or full suite    |
 
-Derive priority from likelihood and impact (`H`, `M`, `L`). Overriding it needs a one-line reason.
+Derive priority from likelihood and impact (`H`, `M`, `L`). Overriding it needs
+a one-line reason.
 
 | Impact \ Likelihood | H    | M    | L    |
 | :------------------ | :--- | :--- | :--- |
@@ -59,101 +29,135 @@ Derive priority from likelihood and impact (`H`, `M`, `L`). Overriding it needs 
 | M                   | `P1` | `P2` | `P2` |
 | L                   | `P2` | `P2` | `P2` |
 
-### Test level
+## Test level
 
-`UI`, `API`, `Visual`, `Audit`.
+`UI`, `API`, `Visual`, `Audit`, `DB` (only for a target where Stage 0 Intake
+confirmed real database access - see `INTENT.md` §2).
 
-### Oracles
+## SFDIPOT - product coverage model
 
-How a problem is recognised. Use these names everywhere: `Familiar problems`, `Explainability`, `World`, `History`, `Image`, `Comparable products`, `Claims`, `User expectations`, `Product consistency`, `Purpose`, `Statutes and standards`.
+Used during exploration to guarantee no blind spot. Seven dimensions:
 
-### Automation decision
+| Dimension          | What it models                                                                              |
+| :----------------- | :------------------------------------------------------------------------------------------ |
+| **S** - Structure  | The physical product: DOM/UI hierarchy, components, bundles, assets, or a service's modules |
+| **F** - Function   | What the product does: search, filtering, calculations, auth, error rules                   |
+| **D** - Data       | What it processes or persists: inputs, storage, cookies, stored records                     |
+| **I** - Interfaces | Every conduit to the product: UI controls, APIs, URL routing, CLIs                          |
+| **P** - Platform   | What it depends on: browser engine, OS, viewport, external services, DB engine              |
+| **O** - Operations | How it's used and abused: personas, reloads, back button, saboteurs                         |
+| **T** - Time       | Any product/time relationship: hydration, debounce, races, animation, async jobs            |
 
-`Automate`, `Charter`, `Not covered`.
+## Exploratory tours
 
-### Defect severity
+1. **Business District** - end-to-end traversal of the core user/API path.
+2. **Skeptical Customer** - cross-check calculations, totals, sort order, counts.
+3. **Saboteur** - boundary values (`0`, `-1`, very large), hostile strings
+   (`%%%`, `<script>`), empty submissions, rapid double-clicks, URL/param
+   tampering.
 
-`High` blocks a core journey or a legal or accessibility standard for many users. `Medium` degrades a journey or blocks a smaller group. `Low` is cosmetic or minor.
+## Oracles (`FEW HICCUPPS`)
 
-### Triage classification
+Evaluate every exploration against all 11. None get skipped.
 
-`Product defect`, `Known defect` (an expected failure tied to an open `DEF-ID`), `Test issue`, `Environment or data issue`, `Flaky`, `Unclear`.
+| Oracle                 | What it evaluates                                                                         |
+| :--------------------- | :---------------------------------------------------------------------------------------- |
+| Familiar problems      | Classic traps: floating-point rounding, off-by-one, `NaN`, `undefined`, `[object Object]` |
+| Explainability         | State changes and errors are understandable - no silent failures or mysterious resets     |
+| World                  | Real-world domain rules hold (no negative quantities, no `$0.00` totals on paid items)    |
+| History                | State stays consistent with prior actions (removing an item restores the prior subtotal)  |
+| Image                  | Visual credibility: no broken images, clipped text, overlaps, placeholder/debug text      |
+| Comparable products    | Follows universal conventions (logo goes home, Enter submits, Escape closes)              |
+| Claims                 | The product does what its own labels, banners and messages claim                          |
+| User expectations      | Supports reasonable user goals smoothly (clear empty states, actionable validation)       |
+| Product consistency    | Internally consistent: names, identifiers and prices match everywhere they appear         |
+| Purpose                | Controls fulfil their intended purpose (a sort sorts, a filter filters)                   |
+| Statutes and standards | WCAG 2.1 AA, security, semantic HTML, and any domain-specific legal/standards requirement |
 
-### Defect status
+## Test techniques
 
-`Open`, `Triaged`, `Remediated`, `Verified`, `Accepted`. Only a clean Phase 5 run moves a defect from `Remediated` to `Verified`.
+Pick the technique that fits the entity or behavior being checked:
 
-### Review finding level and verdict
+| Technique             | Use when                                                           |
+| :-------------------- | :----------------------------------------------------------------- |
+| Zero / One / Many     | Counts and collections (empty, single, typical, overflow)          |
+| Boundary values       | Ranges and limits (min, max, just outside)                         |
+| Equivalence classes   | Inputs that behave alike (valid, invalid, special)                 |
+| State transition      | Behavior depends on history (cart 1->0, logged in/out)             |
+| Decision table        | Several conditions combine into outcomes (rules, discounts)        |
+| Pairwise combinations | Many independent options (filters, settings)                       |
+| Flow / story          | A credible end-to-end journey that crosses features                |
+| Claims                | The product states a promise (banner, FAQ, docs) and you verify it |
+| Stress                | Rapid repetition, large input, slow or failing dependencies        |
 
-Finding levels: `Blocker` (cannot merge), `Change requested` (fix before merge), `Suggestion` (optional). Verdicts: `Approved`, `Changes requested`. A reviewer recommends a verdict; a human decides.
+## Automation decision
 
-### Intake dispositions
+Rate each scenario `1` (low) to `3` (high) on Risk (how much a failure
+matters), Frequency (how often it's used/changed), Stability (how settled the
+feature is), Determinism (can it run reliably without luck/timing/shared
+data), and Cost (effort to build and maintain).
 
-Used when a phase takes in items from the one before: a scenario, charter or design item ID, `Dropped: reason`, `Handoff to Phase N`, `Owner question`, `Needs live check`.
+- **Automate** when risk and determinism are both at least 2 and cost doesn't
+  outweigh risk and frequency.
+- **Charter** when risk is high but determinism is low, or it needs a human's
+  judgement.
+- **Not covered** when risk is low and cost is high - record the reason.
 
-The feature context cross-check in Phase 2 uses these results: `Confirmed`, `Contradicted`, `Not observed`, `Unspecified behaviour` (seen in the product, covered by no criterion).
+## Defect severity
+
+`High` blocks a core journey or a legal/accessibility standard for many users.
+`Medium` degrades a journey or blocks a smaller group. `Low` is cosmetic or minor.
+
+## Defect status
+
+`Open`, `Triaged`, `Remediated`, `Verified`, `Accepted`. Only a clean re-run
+moves a defect from `Remediated` to `Verified`. `Accepted` covers a defect that
+will never be remediated by design (a seeded demo defect used to prove
+detection works) - see `docs/templates/DEFECT_LEDGER.template.md` for how much
+write-up depth that actually needs.
+
+## Triage classification
+
+`Product defect`, `Known defect` (an expected failure tied to an open `DEF-ID`),
+`Test issue`, `Environment or data issue`, `Flaky`, `Unclear`.
+
+## Confidence rubric
+
+Every stage ends by reporting this block before stating it's done
+(`INTENT.md` §3, §4):
+
+```
+## Confidence
+- Confidence: <1-10>
+- Unknowns: <specific list, or "none">
+- Rationale: <one line per factor that applied>
+```
+
+**Confidence** is scored against _that stage's own Definition of Done_
+(`INTENT.md` §4) - not a feeling:
+
+| Band   | Score  | Requires                                                                                                                                                                                                                                                                                                     |
+| :----- | :----- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| High   | `8-10` | Every Done-criterion met by direct observation (the live target, real run output, a documented contract) - nothing inferred or assumed. `10` only if a re-run would reproduce the same result; `8-9` allows one defensible judgement call (e.g. a priority rating) that doesn't change the underlying facts. |
+| Medium | `5-7`  | Every Done-criterion met, but at least one came from inference rather than direct observation, or one open question exists that a human should see - without blocking the write-up.                                                                                                                          |
+| Low    | `2-4`  | At least one Done-criterion was skipped, assumed, or couldn't be checked.                                                                                                                                                                                                                                    |
+| Failed | `1`    | The stage's own Stop-and-ask condition actually fired - the stage did not complete.                                                                                                                                                                                                                          |
+
+**Unknowns**: name the specific missing fact - "whether `DEF-002` also affects
+the cart page, not checked," never "some uncertainty remains."
+
+**Rationale**: one line per factor that actually applied, each citing which
+Done-criterion, which observation, or which assumption drove it - not a
+general impression ("looks solid").
+
+**The gate**: `Confidence >= 8` **and** `Unknowns: none` is the only
+combination that counts as "Done" without flagging for review. Anything else
+is, functionally, that stage's existing Stop-and-ask condition - surfaced
+through this rubric instead of left to prose that's easy to skim past.
 
 ## External systems
 
-Feature context (acceptance criteria, technical notes), test cases, defects and review findings may live in a team's own tools. The framework is tool-neutral: integrations come from the team's own MCP servers, and Jira and TestRail are the reference examples.
-
-| Role                       | Owner when a tool is used | Without a tool              |
-| :------------------------- | :------------------------ | :-------------------------- |
-| Feature context            | The tool                  | The workbook, from Phase 1  |
-| Test cases and run results | The tool                  | The scenarios are the cases |
-| Defects                    | The tool                  | `<site>-defects.md`         |
-| Review findings            | The PR tool               | Section 6 of the workbook   |
-
-- The workbook holds intent, reasoning and `External refs`, and never copies content the tool owns.
-- Phase 1 does not read the feature context. Phase 2 cross-checks it against the Phase 1 findings.
-- A scenario seeds a test case. Once the case exists in the tool, the tool owns its steps and expected results.
-- A defect write-up moves into the tool's ticket when filed. The ledger keeps the `DEF-ID` and the ticket key.
-- Writing to a shared tool needs approval each time.
-
-## Handoffs
-
-A handoff passes transient information to the next phase.
-
-- **Contains only**: open questions, assumptions to confirm, and pointers to IDs. It never copies content that lives elsewhere.
-- **Written by** the sending phase at its sign-off, as the last item in its section:
-
-```text
-<!-- HANDOFF N→M status=open -->
-- Items:
-<!-- /HANDOFF -->
-```
-
-- **Consumed by** the receiving phase, which resolves each item in its own section and **deletes the block once every item is resolved, no later than its own sign-off**. An open block under a phase that is signed off is a stale handoff and a defect in the workbook.
-
-### Returns
-
-A later phase that cannot proceed, or a reviewer who finds a problem, returns it to the phase that owns it. A return is a block of the same form with `status=return`, and the arrow points from the sender back to the owner. It is placed at the end of the owning phase's section.
-
-```text
-<!-- HANDOFF 4→3 status=return -->
-- Items: what is wrong or unclear, with pointers.
-<!-- /HANDOFF -->
-```
-
-The owning phase resolves each item, deletes the block, and signs off again (status returns to `Draft`, then `Approved`). Every later phase that depends on the changed content is re-checked, and repeated where needed, before it signs off. A phase cannot be `Approved` while a return block addressed to it remains.
-
-## Sign-off
-
-Every phase ends with: reviewer, date, status (`Draft` or `Approved`), the `D-` and `L-` entries made during the phase (or "none"), and the outbound handoff. The next phase starts only after `Approved`. Phase 6 differs: its status is `Draft` or `Complete`, its verdict is recorded in its Verdict section, and it has no outbound handoff because it ends the chain.
-
-## Expert sources
-
-Templates name techniques, not people. This table records where techniques come from. Every row must map to a template section or be removed. `Verified` means a source was checked on 2026-10-28; `From memory` means it must be confirmed before it is quoted elsewhere.
-
-| Source                                       | Idea                                                 | Used in               | Status                                                                                                                                                                                                      |
-| :------------------------------------------- | :--------------------------------------------------- | :-------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| James Bach                                   | Heuristic Test Strategy Model                        | Phase 2 context, risk | Verified ([HTSM](https://developsense.com/htsm)); technique family list is from a secondary source                                                                                                          |
-| Cem Kaner                                    | Scenario testing, domain testing                     | Phase 2 techniques    | Verified ([write-up](https://www.cs.hmc.edu/~markk/cs121.f07/supp/scenariotest.html))                                                                                                                       |
-| Hans Buwalda                                 | Soap-opera tests                                     | Phase 2 techniques    | Verified ([Wikipedia](https://en.wikipedia.org/wiki/Scenario_testing))                                                                                                                                      |
-| Brian Marick; Lisa Crispin and Janet Gregory | Agile testing quadrants                              | Phase 2 levels        | Verified ([TechTarget](https://www.techtarget.com/searchsoftwarequality/tip/Agile-testing-quadrants-Guiding-managers-and-teams-in-test-strategies))                                                         |
-| Michael Bolton                               | FEW HICCUPPS oracles                                 | Phases 1, 2, 5        | Verified ([handout](https://developsense.com/resource/Oracles.pdf)); copy the exact list from his post before quoting                                                                                       |
-| Elisabeth Hendrickson                        | Exploratory charters; zero, one, many heuristics     | Phase 2 charters      | From memory                                                                                                                                                                                                 |
-| Myers, Beizer, Czerwonka                     | Boundary values, state and decision models, pairwise | Phase 2 techniques    | From memory                                                                                                                                                                                                 |
-| Gerald Weinberg                              | Quality is value to some person                      | Phase 2 risk          | From memory                                                                                                                                                                                                 |
-| Jonathan and James Bach                      | Session-based test management                        | Phase 2 charters      | From memory                                                                                                                                                                                                 |
-| Phases 1 and 3–6                             | To be mapped when each template is rewritten         | n/a                   | Earlier candidates are unverified: Whittaker, Soundararajan, Balamurugadas (1); Fowler, Stewart, Meszaros (3); Dodds, Bahmutov, Beck (4); Kaner bug advocacy, Bolton test story (5); Farley, Beck, Page (6) |
+The framework is tool-neutral. A team's own tool (Jira, TestRail, a GitHub
+issue) may own feature context, test case storage, or defect tracking; without
+one, the target's own spec file and defect ledger are the record. Writing to a
+shared external tool needs approval each time.

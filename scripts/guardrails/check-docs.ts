@@ -11,6 +11,7 @@ interface Problem {
 
 const TEMPLATES_DIR = path.join('docs', 'templates');
 const TARGETS_DIR = path.join('docs', 'targets');
+const SPECS_DIR = 'specs';
 const LOG_FILE = path.join('docs', 'LOG.md');
 const LOG_ACTIVE_CAP = 30;
 const SKIP_DIRS = new Set(['node_modules', '.git', 'test-results', 'playwright-report', 'dist']);
@@ -38,15 +39,6 @@ function collectMarkdown(dir: string, out: string[] = []): string[] {
   return out;
 }
 
-function phaseTemplates(): Map<number, string> {
-  const found = new Map<number, string>();
-  for (const name of fs.readdirSync(TEMPLATES_DIR)) {
-    const match = /^0([1-6])-.*\.template\.md$/.exec(name);
-    if (match) found.set(Number(match[1]), name);
-  }
-  return found;
-}
-
 // Every document path mentioned must exist. Paths with placeholders are skipped.
 function checkFileReferences(files: string[]): void {
   const docPath =
@@ -62,59 +54,6 @@ function checkFileReferences(files: string[]): void {
       if (!fs.existsSync(path.join(TEMPLATES_DIR, match[0]))) {
         report(file, `references missing template ${match[0]}`);
       }
-    }
-  }
-}
-
-// Every section mark in a template must point at a numbered heading in that template.
-function checkSectionMarks(templates: Map<number, string>): void {
-  for (const name of templates.values()) {
-    const content = read(path.join(TEMPLATES_DIR, name));
-    const headings = new Set([...content.matchAll(/^## (\d+)\./gm)].map((m) => m[1]));
-    for (const match of content.matchAll(/§(\d+)/g)) {
-      if (!headings.has(match[1]))
-        report(name, `section mark §${match[1]} has no matching heading`);
-    }
-  }
-}
-
-// Phase N writes the N to N+1 handoff (N is 1 to 5) and deletes the inbound one (N is 2 to 6).
-function checkHandoffChain(templates: Map<number, string>): void {
-  for (let n = 1; n <= 6; n++) {
-    const name = templates.get(n);
-    if (!name) {
-      report(TEMPLATES_DIR, `phase ${n} template is missing`);
-      continue;
-    }
-    const content = read(path.join(TEMPLATES_DIR, name));
-    const outbound = `<!-- HANDOFF ${n}→${n + 1} status=open -->`;
-    if (n <= 5 && !content.includes(outbound)) report(name, `missing outbound block ${outbound}`);
-    if (n === 6 && /<!-- HANDOFF 6→/.test(content))
-      report(name, 'phase 6 must not write a handoff');
-    if (n >= 2) {
-      if (!content.includes(`HANDOFF ${n - 1}→${n}`)) {
-        report(name, `does not reference inbound HANDOFF ${n - 1}→${n}`);
-      }
-      if (!/delete[^\n]*block|Delete the inbound/i.test(content)) {
-        report(name, 'has no instruction to delete the inbound block');
-      }
-    }
-  }
-}
-
-// Each README phase row must say the phase writes its own workbook section.
-function checkReadmeOwnership(): void {
-  const readmePath = path.join(TEMPLATES_DIR, 'README.md');
-  const rows = read(readmePath).split('\n');
-  for (let n = 1; n <= 6; n++) {
-    const row = rows.find((line) => line.startsWith(`| ${n}   |`));
-    if (!row) {
-      report(readmePath, `phase map has no row for phase ${n}`);
-      continue;
-    }
-    const writes = row.split('|').map((cell) => cell.trim())[5] ?? '';
-    if (!new RegExp(`Section ${n}\\b`).test(writes)) {
-      report(readmePath, `phase ${n} should write Section ${n}, found "${writes}"`);
     }
   }
 }
@@ -144,29 +83,123 @@ function checkLog(): void {
   }
 }
 
-// Workbook handoff blocks must be well formed, and none may outlive the phase that consumes it.
-function checkWorkbookHandoffs(): void {
-  if (!fs.existsSync(TARGETS_DIR)) return;
-  for (const name of fs.readdirSync(TARGETS_DIR)) {
-    if (!name.endsWith('.md') || name.endsWith('-defects.md')) continue;
-    const file = path.join(TARGETS_DIR, name);
+// Per INTENT.md §4 and the rubric in docs/templates/README.md: every
+// "## Confidence Log" entry in a spec file must have all three fields,
+// Confidence an integer 1-10 - makes the confidence rubric mechanically
+// enforced instead of an instruction nothing verifies (PLAN.md Phase 3).
+function checkConfidenceBlocks(): void {
+  if (!fs.existsSync(SPECS_DIR)) return;
+  for (const name of fs.readdirSync(SPECS_DIR)) {
+    if (!name.endsWith('.plan.md')) continue;
+    const file = path.join(SPECS_DIR, name);
     const content = read(file);
-    const opens = [...content.matchAll(/<!-- HANDOFF (\d)→(\d) status=(\w+) -->/g)];
-    const closes = [...content.matchAll(/<!-- \/HANDOFF -->/g)];
-    if (opens.length !== closes.length)
-      report(file, 'handoff opening and closing markers do not pair');
-    const statusLine = /\*\*Status\*\*: `?Phase (\d)([^`\n]*)/.exec(content);
-    const signedOffPhase =
-      statusLine && /Approved|Complete/.test(statusLine[2] ?? '') ? Number(statusLine[1]) : 0;
-    for (const match of opens) {
-      const from = Number(match[1]);
-      const to = Number(match[2]);
-      const state = match[3];
-      const forward = to === from + 1 && state === 'open';
-      const back = from > to && state === 'return';
-      if (!forward && !back) report(file, `malformed handoff ${from}→${to} status=${state}`);
-      if (forward && to <= signedOffPhase) {
-        report(file, `stale handoff ${from}→${to}: phase ${signedOffPhase} is already signed off`);
+    const logSection = /## Confidence Log([\s\S]*)$/.exec(content)?.[1];
+    if (logSection === undefined) {
+      report(file, 'has no "## Confidence Log" section');
+      continue;
+    }
+    const entries = logSection.split(/^### /m).slice(1);
+    if (entries.length === 0) {
+      report(file, '"## Confidence Log" has no dated entries');
+      continue;
+    }
+    for (const entry of entries) {
+      const heading = entry.split('\n')[0]?.trim() ?? '(unknown entry)';
+      const confidence = /^-\s*Confidence:\s*(\S+)/m.exec(entry)?.[1];
+      const unknowns = /^-\s*Unknowns:\s*(.+)$/m.exec(entry)?.[1]?.trim();
+      const rationale = /^-\s*Rationale:\s*(.+)$/m.exec(entry)?.[1]?.trim();
+      if (
+        !confidence ||
+        !/^\d+$/.test(confidence) ||
+        Number(confidence) < 1 ||
+        Number(confidence) > 10
+      ) {
+        report(file, `Confidence Log entry "${heading}" has no valid Confidence (1-10 integer)`);
+      }
+      if (!unknowns) report(file, `Confidence Log entry "${heading}" has no Unknowns field`);
+      if (!rationale) report(file, `Confidence Log entry "${heading}" has no Rationale field`);
+    }
+  }
+}
+
+// Per INTENT.md §2: a target's origin must be allowed before the browser MCP
+// server can navigate there, and a config that lingers with a removed
+// target's origin is itself a stale, orphaned entry nobody would notice.
+function checkAllowedOrigins(): void {
+  const registryPath = path.join(TARGETS_DIR, 'REGISTRY.md');
+  if (!fs.existsSync(registryPath)) return;
+
+  const activeOrigins = new Set<string>();
+  for (const line of read(registryPath).split('\n')) {
+    if (!line.startsWith('|') || line.startsWith('| :')) continue;
+    const cell = line.split('|')[3];
+    if (!cell || /archived/i.test(cell)) continue;
+    const match = /`(https?:\/\/[^`]+)`/.exec(cell);
+    if (match) activeOrigins.add(match[1]);
+  }
+  if (activeOrigins.size === 0) return;
+
+  const configs = [
+    { file: '.mcp.json', pattern: /--allowed-origins"\s*,\s*"([^"]+)"/ },
+    {
+      file: path.join('.agents', 'mcp_config.json'),
+      pattern: /--allowed-origins"\s*,\s*"([^"]+)"/,
+    },
+    { file: path.join('.codex', 'config.toml'), pattern: /--allowed-origins","([^"]+)"/ },
+  ];
+
+  for (const { file, pattern } of configs) {
+    if (!fs.existsSync(file)) continue;
+    const match = pattern.exec(read(file));
+    if (!match) {
+      report(file, 'has no --allowed-origins list');
+      continue;
+    }
+    const configuredOrigins = new Set(match[1].split(';'));
+    for (const origin of activeOrigins) {
+      if (!configuredOrigins.has(origin)) {
+        report(file, `missing active target origin ${origin} from docs/targets/REGISTRY.md`);
+      }
+    }
+    for (const origin of configuredOrigins) {
+      if (!activeOrigins.has(origin)) {
+        report(file, `allows ${origin}, which is not an active target in docs/targets/REGISTRY.md`);
+      }
+    }
+  }
+}
+
+// Per INTENT.md §2: the process layer must never name a specific target. Checks
+// every name in docs/targets/REGISTRY.md against AGENTS.md, CORE_PRINCIPLES.md,
+// and every agent/skill file - replacing the one-off grep done by hand before.
+function checkProcessLayerAgnostic(): void {
+  const registryPath = path.join(TARGETS_DIR, 'REGISTRY.md');
+  if (!fs.existsSync(registryPath)) return;
+  // Only the table's "Names" column (2nd cell) holds names to check - the rest
+  // of the file is prose and may legitimately mention other backtick-quoted paths.
+  const names: string[] = [];
+  for (const line of read(registryPath).split('\n')) {
+    if (!line.startsWith('|') || line.startsWith('| :')) continue;
+    const cell = line.split('|')[2];
+    if (!cell) continue;
+    for (const match of cell.matchAll(/`([^`]+)`/g)) names.push(match[1].toLowerCase());
+  }
+  if (names.length === 0) return;
+
+  const processFiles = [
+    'AGENTS.md',
+    'CORE_PRINCIPLES.md',
+    ...listFiles(path.join('.claude', 'agents')),
+    ...listFiles(path.join('.claude', 'skills')),
+    ...listFiles(path.join('.agents', 'agents')),
+    ...listFiles(path.join('.agents', 'skills')),
+  ].filter((file) => fs.existsSync(file));
+
+  for (const file of processFiles) {
+    const lower = read(file).toLowerCase();
+    for (const name of names) {
+      if (lower.includes(name)) {
+        report(file, `names a specific target ("${name}") - the process layer must stay agnostic`);
       }
     }
   }
@@ -353,20 +386,18 @@ function checkMcpAllowlists(): void {
 function main(): void {
   console.log('🔍 Running Playwright AI Workbench Documentation Checker...');
   const files = collectMarkdown('.');
-  const templates = phaseTemplates();
 
   checkFileReferences(files);
-  checkSectionMarks(templates);
-  checkHandoffChain(templates);
-  checkReadmeOwnership();
   checkLog();
-  checkWorkbookHandoffs();
   checkSkillCopies();
   checkAgentBodies();
   checkClaudeToolServers();
   checkInstructionStubs();
   checkAgentsDigest();
   checkMcpAllowlists();
+  checkProcessLayerAgnostic();
+  checkConfidenceBlocks();
+  checkAllowedOrigins();
 
   if (problems.length === 0) {
     console.log(`✅ All documentation checks passed across ${files.length} files.`);

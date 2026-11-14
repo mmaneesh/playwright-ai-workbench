@@ -2,7 +2,7 @@ import type { Page, Locator } from '@playwright/test';
 import { openRoute } from '@helpers/route.helper';
 
 // This site uses data-test (not Playwright's default data-testid), confirmed live
-// (see docs/targets/saucedemo.md 1.7.4) - getByTestId() would silently match nothing,
+// (confirmed live against the site) - getByTestId() would silently match nothing,
 // so every id-based locator here targets the attribute directly as a documented exception.
 export class SaucedemoInventoryPage {
   readonly title: Locator;
@@ -11,6 +11,7 @@ export class SaucedemoInventoryPage {
   readonly cartLink: Locator;
   readonly productNames: Locator;
   readonly productPrices: Locator;
+  readonly productImages: Locator;
 
   constructor(readonly page: Page) {
     this.title = page.locator('[data-test="title"]').describe('inventory page title');
@@ -25,6 +26,7 @@ export class SaucedemoInventoryPage {
     this.productPrices = page
       .locator('[data-test="inventory-item-price"]')
       .describe('product prices');
+    this.productImages = page.locator('.inventory_item_img img').describe('product images');
   }
 
   async open(): Promise<void> {
@@ -33,6 +35,10 @@ export class SaucedemoInventoryPage {
 
   async addToCart(productSlug: string): Promise<void> {
     await this.page.locator(`[data-test="add-to-cart-${productSlug}"]`).click();
+  }
+
+  async productImageSrcs(): Promise<(string | null)[]> {
+    return this.productImages.evaluateAll((images) => images.map((img) => img.getAttribute('src')));
   }
 
   async sortBy(option: string): Promise<void> {

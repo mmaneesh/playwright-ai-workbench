@@ -1,10 +1,11 @@
 ---
 name: explore
-description: Phase 1, Explore. Explores the live application independently and fills Section 1 of the target workbook, following docs/templates/01-EXPLORATION.template.md.
+description: Stages 0-1 (Intake, Explore). Asks what's being tested, then explores it independently, writing findings to that target's spec file.
 ---
 
-# /explore: Phase 1, Explore
+# /explore: Stages 0-1
 
-1. Read `docs/templates/README.md` and `docs/templates/01-EXPLORATION.template.md`. The template governs; follow its Boundaries.
-2. Fill Section 1 of `docs/targets/<site>.md`.
-3. Stop at sign-off. A human sets the status to Approved.
+Dispatches to the `explorer` agent (`.claude/agents/explorer.md` /
+`.agents/agents/explorer.md`) - browser tools only, cannot write test code.
+See that agent's file for the Intake questions and the full Explore checklist
+(SFDIPOT, the 3 tours, the 11 oracles).
