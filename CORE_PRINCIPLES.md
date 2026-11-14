@@ -138,3 +138,31 @@ How tests are organised, so every scenario is traceable and every test stays ind
 | **Locator order**        | Role, then label, then text or placeholder. A test id is a documented exception, with the reason recorded in the workbook.                                                                                                                                                                                                             |
 | **Known defects**        | A test for an already-logged, open defect in `docs/targets/<site>-defects.md` calls `test.fail()` with a `defect` annotation naming the `DEF-ID`, so CI reports an expected failure instead of blocking the build. Remove `test.fail()` only once the defect moves to `Remediated`, then re-verify with a clean run before `Verified`. |
 | **Eventual consistency** | An assertion that depends on asynchronous backend processing (a status that transitions after a write) uses `expect.poll()`, never a single immediate assertion and never `waitForTimeout`.                                                                                                                                            |
+
+---
+
+## 8. Database Testing Without Direct Access
+
+Applies only when Stage 0 Intake confirms a target has data-mutating
+operations (create/update/delete, via UI or API) but no direct database
+access. The moment a target _does_ expose real DB access, this section is
+superseded for that target - write actual `tests/db/` specs against it
+instead (`INTENT.md` §8); this is not the permanent approach, it's what
+stands in for one.
+
+**Core principle**: verify data integrity through observable behavior, not
+storage internals. If a mutation can't be checked at the DB layer, prove it
+persisted or behaved correctly through a _different_ surface than the one
+that made the change - using this project's existing oracles (Conformance to
+spec, Consistency, Claims), not new vocabulary.
+
+| Technique                                      | What it catches                                                                                                                                                    | Example in this repo                                                                                                                                           |
+| :--------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Round-trip persistence**                     | A write that appears to succeed but didn't actually persist. Write via one surface, re-read via another or a fresh session - never trust the write response alone. | n/a yet - no current target needs it; would look like creating a biller via the API then confirming it via a second, independent `GET`.                        |
+| **Isolation under concurrency**                | Two concurrent operations corrupting shared state.                                                                                                                 | `tests/api/billing-lifecycle.spec.ts`'s `isolatedUser` fixture - a unique user + payment method per run, stress-tested with two concurrent runs, no collision. |
+| **Referential integrity, observed indirectly** | Deleting/removing a parent resource leaving orphaned or wrongly-cascaded dependents.                                                                               | n/a yet - would look like deleting a biller via the API, then checking its bills via a `GET`, not a DB foreign-key check.                                      |
+| **Idempotency / duplicate prevention**         | Repeating the same mutation (a retried request, a double-click) double-applying it.                                                                                | n/a yet.                                                                                                                                                       |
+
+**Explicit non-goals**: no direct SQL assertions, no schema validation, no
+transaction-level testing. Those require real DB access and this section
+does not fake them.

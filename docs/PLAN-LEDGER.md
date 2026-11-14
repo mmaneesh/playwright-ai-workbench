@@ -88,11 +88,18 @@ in `INTENT.md` §3/§5/§11 - this is the checklist, not the rationale.
       `ubuntu-latest` run, alongside every other existing leg - not just a
       local Docker pass.
 
-## `PLAN.md` Phase 5 — Database testing, scoping only (Not started)
+## `PLAN.md` Phase 5 — Database testing, scoping only (Verified, complete)
 
-- [ ] Decide: bring a concrete target with real DB access, or document a
-      through-the-API/UI data-integrity testing strategy. Today's targets
-      (Sauce Demo, the BillPay practice API) expose no direct DB access.
+- [x] ~~Decide: bring a concrete target with real DB access, or document a
+      through-the-API/UI data-integrity testing strategy.~~ Decided:
+      document the strategy (`CORE_PRINCIPLES.md` §8, "Database Testing
+      Without Direct Access") - no new target brought in this pass. Covers
+      round-trip persistence, isolation under concurrency (referencing the
+      already-proven `isolatedUser` pattern), referential integrity observed
+      indirectly, and idempotency - explicitly not SQL/schema/transaction
+      testing. Gated to be superseded the moment Stage 0 Intake confirms a
+      target with real DB access, per `INTENT.md` §8. Zero new test files,
+      zero new target facts - `npm run check` passes.
 
 ---
 
