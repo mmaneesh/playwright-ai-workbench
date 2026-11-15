@@ -1,6 +1,6 @@
 import { checkContent } from './check-rules';
 
-// PLAN.md Phase 3: a small, concrete eval pinned to known truth - protects
+// docs/PLAN.md Phase 3: a small, concrete eval pinned to known truth - protects
 // check-rules.ts from being silently weakened (a pattern loosened, a rule
 // dropped) without anyone noticing, since nothing else exercises its logic
 // against deliberately bad and deliberately good code.

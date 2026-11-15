@@ -36,7 +36,7 @@ scenario's `Spec:` line in the plan file.
    as expected for a known defect (`test.fail()`, with the `DEF-ID` cited).
 4. Self-review against every guardrail above before reporting.
 
-## Done / stop conditions (`INTENT.md` §4, Stage 4)
+## Done / stop conditions (`docs/INTENT.md` §4, Stage 4)
 
 **Done when**: every test case has a matching spec; `npm run check` passes;
 the test runs green or fails exactly as expected; self-reviewed against every

@@ -1,6 +1,6 @@
 ---
 name: claims-audit
-description: Framework maintenance, not a pipeline stage. Picks one root doc (AGENTS.md, CORE_PRINCIPLES.md, INTENT.md, README.md, or docs/LOG.md's own rules), checks every checkable claim in it against actual repo state, and reports drift. Never fixes silently.
+description: Framework maintenance, not a pipeline stage. Picks one root doc (AGENTS.md, CORE_PRINCIPLES.md, docs/INTENT.md, README.md, or docs/LOG.md's own rules), checks every checkable claim in it against actual repo state, and reports drift. Never fixes silently.
 ---
 
 # /claims-audit: does every documented claim still hold?
@@ -23,7 +23,7 @@ fixed in this repo:
   tsconfig alias was never usable (TypeScript reserves that prefix) and zero
   files had ever imported through it - broken since it was written, caught
   only once something finally tried to use it.
-- **A "this works" claim that's gone stale.** `INTENT.md` and `README.md`
+- **A "this works" claim that's gone stale.** `docs/INTENT.md` and `README.md`
   both said the visual suite had "zero specs, a real gap" after 15 specs had
   already shipped and passed in CI.
 - **A stated rule with no mechanical teeth.** `docs/LOG.md`'s own "Rules for
@@ -49,7 +49,7 @@ fixed in this repo:
 1. `npm run check` first - if it doesn't pass, that's noise under everything
    else; report it and stop.
 2. Pick one target for this run: `AGENTS.md`, `CORE_PRINCIPLES.md`,
-   `INTENT.md`, `README.md`, or `docs/LOG.md`'s own "Rules for this file"
+   `docs/INTENT.md`, `README.md`, or `docs/LOG.md`'s own "Rules for this file"
    section. Rotate targets run to run rather than re-auditing the same one.
 3. Read it in full. List every sentence that is a checkable claim (see
    above), not an opinion or a stated rationale.

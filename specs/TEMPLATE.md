@@ -2,7 +2,7 @@
 
 Copy this file to `specs/<target>.plan.md` for a new target. One file per
 target - this is the single source of truth for Stages 0 through 3
-(`INTENT.md` §1, §4). Delete this comment block once filled.
+(`docs/INTENT.md` §1, §4). Delete this comment block once filled.
 
 Vocabulary (IDs, priority math, SFDIPOT, the tours, the 11 oracles, test
 techniques, automation-decision scoring, defect severity/status) lives once in
@@ -28,7 +28,7 @@ techniques, automation-decision scoring, defect severity/status) lives once in
 ## Scenarios
 
 One entry per scenario. Each carries risk, priority, technique and oracle
-inline - no separate Risk Register or Scenario Catalog table (`INTENT.md` §3).
+inline - no separate Risk Register or Scenario Catalog table (`docs/INTENT.md` §3).
 
 ### SC-001 - <intent, plain language>
 

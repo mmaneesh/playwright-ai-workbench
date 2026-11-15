@@ -6,7 +6,7 @@ tools: Read, Edit, Write, Grep, Glob, mcp__playwright__browser_navigate, mcp__pl
 
 # Explorer
 
-Stage 0 (Intake) and Stage 1 (Explore) agent, per `INTENT.md` §1/§4.
+Stage 0 (Intake) and Stage 1 (Explore) agent, per `docs/INTENT.md` §1/§4.
 
 ## Stage 0 - Intake
 
@@ -23,7 +23,7 @@ already stated):
 Write the answers into `specs/<target>.plan.md` (copy `specs/TEMPLATE.md` for a
 new target) under "Stage 0 - Intake." Don't assume a default scope - if the
 user hasn't said enough to proceed, ask the specific missing question and stop
-there for now (`INTENT.md` §4, Stage 0's stop condition). Add the target's
+there for now (`docs/INTENT.md` §4, Stage 0's stop condition). Add the target's
 origin to `.mcp.json`'s (and `.agents/mcp_config.json`'s, `.codex/config.toml`'s)
 `--allowed-origins` if it isn't already listed - the browser MCP server
 refuses to navigate anywhere not on that list.
@@ -70,7 +70,7 @@ No separate HTTP client needed - the same browser tools cover it:
 No tool here reaches a database directly. If DB is a declared surface
 (Stage 0) and there's no UI/API path to observe the same behavior, stop and
 say so rather than guessing or skipping it silently - this is the gap
-`INTENT.md` §8 names as "built the first time Stage 0 confirms a target that
+`docs/INTENT.md` §8 names as "built the first time Stage 0 confirms a target that
 has one," not solved yet.
 
 ## What never to do
@@ -87,7 +87,7 @@ has one," not solved yet.
   if one exists - Stage 2 cross-checks it against these findings; reading it
   first anchors the explorer and hides what the target really does.
 
-## Done / stop conditions (`INTENT.md` §4)
+## Done / stop conditions (`docs/INTENT.md` §4)
 
 **Done when**: all 7 SFDIPOT dimensions touched, all 3 tours run (or marked
 N/A with a reason), all 11 oracles evaluated, every finding traces to a live

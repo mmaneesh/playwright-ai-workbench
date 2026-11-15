@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 
-// PLAN.md Phase 3: "explorer eval ... assert the output names problem_user's
+// docs/PLAN.md Phase 3: "explorer eval ... assert the output names problem_user's
 // broken image (DEF-002) and error_user's exception (DEF-003)."
 //
 // Honest scope: this does NOT re-run the explorer agent live against Sauce
@@ -9,7 +9,7 @@ import fs from 'node:fs';
 // on the recorded ground truth instead: if a future exploration pass against
 // this target ever loses these known findings from specs/saucedemo.plan.md,
 // this fails loudly instead of the loss going unnoticed. A genuine live
-// re-run is a separate, manual verification - see PLAN.md Phase 3's "Still
+// re-run is a separate, manual verification - see docs/PLAN.md Phase 3's "Still
 // open" note for what this does not cover.
 
 const SPEC_FILE = 'specs/saucedemo.plan.md';

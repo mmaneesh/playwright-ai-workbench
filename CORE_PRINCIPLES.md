@@ -147,7 +147,7 @@ Applies only when Stage 0 Intake confirms a target has data-mutating
 operations (create/update/delete, via UI or API) but no direct database
 access. The moment a target _does_ expose real DB access, this section is
 superseded for that target - write actual `tests/db/` specs against it
-instead (`INTENT.md` §8); this is not the permanent approach, it's what
+instead (`docs/INTENT.md` §8); this is not the permanent approach, it's what
 stands in for one.
 
 **Core principle**: verify data integrity through observable behavior, not
