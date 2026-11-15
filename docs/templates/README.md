@@ -59,10 +59,10 @@ Used during exploration to guarantee no blind spot. Seven dimensions:
 ## Oracles (`FEW HICCUPPS`)
 
 Evaluate every exploration against all 11, UI or API alike - these are
-Bach/Bolton's general consistency heuristics, not UI-specific checks. Two
-rows below (`Image`, `Comparable products`) previously narrowed the real
-definition down to a UI-only example; corrected here to what the oracle
-actually means, which was agnostic all along. None get skipped.
+general consistency heuristics, not UI-specific checks. Two rows below
+(`Image`, `Comparable products`) previously narrowed the real definition
+down to a UI-only example; corrected here to what the oracle actually
+means, which was agnostic all along. None get skipped.
 
 | Oracle                 | What it evaluates                                                                                                                                                                                                 |
 | :--------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
