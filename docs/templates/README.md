@@ -58,21 +58,25 @@ Used during exploration to guarantee no blind spot. Seven dimensions:
 
 ## Oracles (`FEW HICCUPPS`)
 
-Evaluate every exploration against all 11. None get skipped.
+Evaluate every exploration against all 11, UI or API alike - these are
+general consistency heuristics, not UI-specific checks. Two rows below
+(`Image`, `Comparable products`) previously narrowed the real definition
+down to a UI-only example; corrected here to what the oracle actually
+means, which was agnostic all along. None get skipped.
 
-| Oracle                 | What it evaluates                                                                         |
-| :--------------------- | :---------------------------------------------------------------------------------------- |
-| Familiar problems      | Classic traps: floating-point rounding, off-by-one, `NaN`, `undefined`, `[object Object]` |
-| Explainability         | State changes and errors are understandable - no silent failures or mysterious resets     |
-| World                  | Real-world domain rules hold (no negative quantities, no `$0.00` totals on paid items)    |
-| History                | State stays consistent with prior actions (removing an item restores the prior subtotal)  |
-| Image                  | Visual credibility: no broken images, clipped text, overlaps, placeholder/debug text      |
-| Comparable products    | Follows universal conventions (logo goes home, Enter submits, Escape closes)              |
-| Claims                 | The product does what its own labels, banners and messages claim                          |
-| User expectations      | Supports reasonable user goals smoothly (clear empty states, actionable validation)       |
-| Product consistency    | Internally consistent: names, identifiers and prices match everywhere they appear         |
-| Purpose                | Controls fulfil their intended purpose (a sort sorts, a filter filters)                   |
-| Statutes and standards | WCAG 2.1 AA, security, semantic HTML, and any domain-specific legal/standards requirement |
+| Oracle                 | What it evaluates                                                                                                                                                                                                 |
+| :--------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Familiar problems      | Classic traps: floating-point rounding, off-by-one, `NaN`, `undefined`, `[object Object]`                                                                                                                         |
+| Explainability         | State changes and errors are understandable - no silent failures or mysterious resets                                                                                                                             |
+| World                  | Real-world domain rules hold (no negative quantities, no `$0.00` totals on paid items)                                                                                                                            |
+| History                | State stays consistent with prior actions (removing an item restores the prior subtotal)                                                                                                                          |
+| Image                  | Consistent with the organization's brand, reputation and professionalism - a broken image/placeholder text on a page and a leaked stack trace in an API error response are the same oracle on different surfaces  |
+| Comparable products    | Consistent with comparable products or implementations - a UI convention (logo goes home, Enter submits, Escape closes) or an API convention (correct HTTP status codes, idempotent GETs, a standard error shape) |
+| Claims                 | The product does what its own labels, banners, messages, or documented contract claims                                                                                                                            |
+| User expectations      | Supports reasonable user goals smoothly (clear empty states, actionable validation)                                                                                                                               |
+| Product consistency    | Internally consistent: names, identifiers and prices match everywhere they appear                                                                                                                                 |
+| Purpose                | Controls fulfil their intended purpose (a sort sorts, a filter filters)                                                                                                                                           |
+| Statutes and standards | WCAG 2.1 AA, security, semantic HTML, and any domain-specific legal/standards requirement                                                                                                                         |
 
 ## Test techniques
 

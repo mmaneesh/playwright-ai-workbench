@@ -105,14 +105,14 @@ Per `INTENT.md` §2: small, concrete, pinned to known truth, not a framework.
 
 ## Phase 4 — Visual regression suite
 
-Per `INTENT.md` §6: `tests/visual/` has config but zero specs today - a real gap,
+Per `INTENT.md` §8: `tests/visual/` has config but zero specs today - a real gap,
 not a deliberate scope decision. Scope (which pages, which viewports, how many
 baseline variants) gets agreed before any spec is written, so it doesn't overshoot
 into a dozen snapshot variants nobody reviews.
 
 ## Phase 5 — Database testing (scoping only)
 
-Per `INTENT.md` §6: aspirational. Today's targets expose no direct database
+Per `INTENT.md` §8: aspirational. Today's targets expose no direct database
 access. This phase is "decide whether a concrete target with real DB access
 exists, or document a through-the-API/UI data-integrity testing strategy" - not
 "build a `tests/db/` folder" until that's answered.

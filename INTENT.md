@@ -234,8 +234,9 @@ confirms for a given target - `tests/` keeps its suite structure:
 - **UI** - exists, built out (Sauce Demo).
 - **API** - exists, built out (BillPay practice API), with per-run data
   isolation.
-- **Visual Regression** - config exists, zero specs today; a real gap, to be
-  built with committed baselines, not left as an advertised-but-empty capability.
+- **Visual Regression** - exists, built out (Sauce Demo, `PLAN.md` Phase 4,
+  2026-11-14): 5 scenarios across 3 viewports, committed Docker-generated
+  baselines, verified in CI.
 - **Audit** (accessibility, Core Web Vitals, SEO) - exists, built out.
 - **Database** - aspirational for the targets in this repo today (neither
   exposes real DB access), but the _pipeline_ must support a DB-accessible

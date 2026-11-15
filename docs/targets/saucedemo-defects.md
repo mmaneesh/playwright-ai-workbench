@@ -2,7 +2,7 @@
 
 - **Target Application**: Sauce Demo (Swag Labs)
 - **Target URL**: `https://www.saucedemo.com`
-- **Environment**: `env-config/saucedemo.env` (`UI_BASE_URL=https://www.saucedemo.com`)
+- **Environment**: `env-config/{dev,stg,uat,prod}.env` (`UI_BASE_URL=https://www.saucedemo.com`)
 - **Created**: October 29, 2026
 - **Status**: Active Ledger
 - **Defect tool**: none

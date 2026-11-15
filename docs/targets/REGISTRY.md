@@ -11,8 +11,7 @@ appear in `--allowed-origins` in `.mcp.json`, `.agents/mcp_config.json`, and
 on that list), and anything in those configs that isn't listed here is a
 stale, orphaned origin (`INTENT.md` §2).
 
-| Target                          | Names (case-insensitive, checked)      | Origin                                                               | Config                      | Spec file                                                      |
-| :------------------------------ | :------------------------------------- | :------------------------------------------------------------------- | :-------------------------- | :------------------------------------------------------------- |
-| Sauce Demo / Swag Labs (UI)     | `saucedemo`, `sauce demo`, `swag labs` | `https://www.saucedemo.com`                                          | `env-config/saucedemo.env`  | `specs/saucedemo.plan.md`, `docs/targets/saucedemo-defects.md` |
-| Gaurav Khurana Bill Payment API | `billpay`, `gauravkhurana`             | `https://billpay-api.gauravkhurana-practice-api.workers.dev`         | `.env` (`API_BASE_URL`)     | none yet - API suite predates the spec-file format             |
-| LambdaTest eCommerce Playground | `lambdatest`                           | `https://ecommerce-playground.lambdatest.io` (archived, not allowed) | `env-config/lambdatest.env` | archived - never exercised by a current spec                   |
+| Target                          | Names (case-insensitive, checked)      | Origin                                                       | Config                              | Spec file                                                      |
+| :------------------------------ | :------------------------------------- | :----------------------------------------------------------- | :---------------------------------- | :------------------------------------------------------------- |
+| Sauce Demo / Swag Labs (UI)     | `saucedemo`, `sauce demo`, `swag labs` | `https://www.saucedemo.com`                                  | `env-config/{dev,stg,uat,prod}.env` | `specs/saucedemo.plan.md`, `docs/targets/saucedemo-defects.md` |
+| Gaurav Khurana Bill Payment API | `billpay`, `gauravkhurana`             | `https://billpay-api.gauravkhurana-practice-api.workers.dev` | `.env` (`API_BASE_URL`)             | none yet - API suite predates the spec-file format             |

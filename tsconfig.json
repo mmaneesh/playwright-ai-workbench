@@ -13,7 +13,7 @@
       "@components/*": ["page-objects/components/*"],
       "@fixtures": ["fixtures/index.ts"],
       "@fixtures/*": ["fixtures/*"],
-      "@types/*": ["types/*"],
+      "@contracts/*": ["types/*"],
       "@test-data/*": ["test-data/*"],
       "@helpers/*": ["helpers/*"]
     },

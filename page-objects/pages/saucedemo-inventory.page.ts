@@ -1,5 +1,6 @@
 import type { Page, Locator } from '@playwright/test';
 import { openRoute } from '@helpers/route.helper';
+import type { SortOption } from '../../types/sort-option.enum';
 
 // This site uses data-test (not Playwright's default data-testid), confirmed live
 // (confirmed live against the site) - getByTestId() would silently match nothing,
@@ -41,7 +42,7 @@ export class SaucedemoInventoryPage {
     return this.productImages.evaluateAll((images) => images.map((img) => img.getAttribute('src')));
   }
 
-  async sortBy(option: string): Promise<void> {
+  async sortBy(option: SortOption): Promise<void> {
     await this.sortDropdown.selectOption({ label: option });
   }
 

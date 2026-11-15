@@ -113,7 +113,7 @@ in the move - see `docs/targets/saucedemo-defects.md` for the defect ledger.
 
 ### SC-010 - error_user throws an uncaught exception filling the checkout form
 
-- Risk: `R-007` · Priority: `P2` · Technique: Fault injection (seeded account) · Oracle: Conformance to spec
+- Risk: `R-007` · Priority: `P2` · Technique: Fault injection (seeded account) · Oracle: Explainability
 - Preconditions: guest, `error_user`/`secret_sauce`, one item in cart
 - Test case: 1) Reach checkout step one, fill the form -> expect: a `pageerror` event fires (the seeded `TypeError` in the app's own `onChange` handler)
 - Decision: `Automate (known-defect)` - DEFECT (`DEF-003`, `Accepted` - seeded, won't be remediated).
@@ -124,7 +124,7 @@ non-flaky way to assert its slowness is ever found (see "Not covered" below).
 
 ### SC-011 - The empty login page matches its visual baseline
 
-- Risk: `R-008` · Priority: `P2` · Technique: Claims · Oracle: Consistency
+- Risk: `R-008` · Priority: `P2` · Technique: Claims · Oracle: Product consistency
 - Preconditions: guest
 - Test case: 1) Open the login page -> expect: matches the committed baseline screenshot (desktop/tablet/mobile)
 - Decision: `Automate`
@@ -132,7 +132,7 @@ non-flaky way to assert its slowness is ever found (see "Not covered" below).
 
 ### SC-012 - The product grid matches its visual baseline
 
-- Risk: `R-008` · Priority: `P2` · Technique: Claims · Oracle: Consistency
+- Risk: `R-008` · Priority: `P2` · Technique: Claims · Oracle: Product consistency
 - Preconditions: logged in as `standard_user`
 - Test case: 1) Open the inventory page -> expect: matches the committed baseline screenshot
 - Decision: `Automate`
@@ -140,7 +140,7 @@ non-flaky way to assert its slowness is ever found (see "Not covered" below).
 
 ### SC-013 - The cart with two items matches its visual baseline
 
-- Risk: `R-008` · Priority: `P2` · Technique: Claims · Oracle: Consistency
+- Risk: `R-008` · Priority: `P2` · Technique: Claims · Oracle: Product consistency
 - Preconditions: logged in as `standard_user`, two items added to the cart
 - Test case: 1) Open the cart page -> expect: matches the committed baseline screenshot
 - Decision: `Automate`
@@ -148,7 +148,7 @@ non-flaky way to assert its slowness is ever found (see "Not covered" below).
 
 ### SC-014 - The checkout information step matches its visual baseline
 
-- Risk: `R-008` · Priority: `P2` · Technique: Claims · Oracle: Consistency
+- Risk: `R-008` · Priority: `P2` · Technique: Claims · Oracle: Product consistency
 - Preconditions: logged in as `standard_user`, one item in cart, on checkout step one
 - Test case: 1) Reach checkout step one -> expect: matches the committed baseline screenshot
 - Decision: `Automate`
@@ -156,7 +156,7 @@ non-flaky way to assert its slowness is ever found (see "Not covered" below).
 
 ### SC-015 - The checkout overview step matches its visual baseline
 
-- Risk: `R-008` · Priority: `P2` · Technique: Claims · Oracle: Consistency
+- Risk: `R-008` · Priority: `P2` · Technique: Claims · Oracle: Product consistency
 - Preconditions: logged in as `standard_user`, one item in cart, info submitted on step one
 - Test case: 1) Reach checkout step two -> expect: matches the committed baseline screenshot
 - Decision: `Automate`

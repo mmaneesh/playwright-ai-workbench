@@ -29,7 +29,7 @@ It currently runs against two public demo targets (a sample e-commerce storefron
 ## What this repo can do
 
 - **Run four independent test suites** against a web app and its API: functional UI/E2E, API contract, visual regression, and accessibility/SEO/web-vitals audits — each with its own Playwright config, browser matrix, and reporter.
-- **Switch target environments atomically** (`dev`, `stg`, `uat`, `prod`, plus the demo target `saucedemo` and the archived `lambdatest`) with one command, no manual `.env` editing.
+- **Switch target environments atomically** (`dev`, `stg`, `uat`, `prod`) with one command, no manual `.env` editing.
 - **Validate every API response against a strict Zod schema** with zero `any` types, so a contract break fails loudly and typed.
 - **Enforce code-quality rules mechanically**, not just by convention: a custom guardrail checker blocks `waitForTimeout`, XPath selectors, the `any` type, pseudo-Gherkin steps, and raw Playwright imports in UI specs, both as a pre-write hook for AI agents and as a CI gate.
 - **Run everywhere identically**: locally, in Docker (for cross-platform visual consistency), or in GitHub Actions CI.
@@ -104,7 +104,7 @@ playwright-ai-workbench/
 │   ├── PLAN-LEDGER.md          # What's actually been verified vs. just planned
 │   ├── templates/             # Shared vocabulary (IDs, priority, SFDIPOT, oracles) + defect record format
 │   └── targets/               # REGISTRY.md (every target) + <target>-defects.md (that target's ledger)
-├── env-config/                 # Plain .env templates per environment (dev/stg/uat/prod/saucedemo/lambdatest)
+├── env-config/                 # Plain .env templates per environment (dev/stg/uat/prod)
 ├── fixtures/                   # Composable Playwright fixtures (dependency injection)
 │   ├── ui.fixture.ts           # Injects page objects and components
 │   ├── api.fixture.ts          # Injects an authenticated APIRequestContext
@@ -137,18 +137,15 @@ playwright-ai-workbench/
 
 Each Playwright config reads `UI_BASE_URL` / `API_BASE_URL` straight from `process.env` (loaded via `dotenv/config`). There is no custom environment resolver — just plain `.env` files you select from.
 
-| Template                                      | Target                                                                    |
-| :-------------------------------------------- | :------------------------------------------------------------------------ |
-| `env-config/dev.env`                          | Sauce Demo + bill-pay API (default local dev)                             |
-| `env-config/saucedemo.env`                    | Sauce Demo (primary UI/visual/audit target)                               |
-| `env-config/lambdatest.env`                   | LambdaTest eCommerce Playground (archived, never exercised by any spec)   |
-| `env-config/stg.env` / `uat.env` / `prod.env` | Placeholder templates — replace the URLs with your own authorized targets |
+| Template                                      | Target                                                                                                                               |
+| :-------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------- |
+| `env-config/dev.env`                          | Sauce Demo + bill-pay API (default local dev)                                                                                        |
+| `env-config/stg.env` / `uat.env` / `prod.env` | Same Sauce Demo + bill-pay API values as `dev.env` today — overwrite with your own per-environment URLs once you bring a real target |
 
 Switch environments:
 
 ```sh
-npm run env:config -- saucedemo   # copies env-config/saucedemo.env -> .env
-npm run env:config -- stg        # or uat / prod / dev / lambdatest
+npm run env:config -- dev   # or stg / uat / prod
 ```
 
 Override a single URL for one run without touching `.env` (shell/CI variables always win over `.env`):
@@ -209,7 +206,7 @@ Pure `APIRequestContext`-based contract tests against the bill-pay demo API: hea
 
 ### Visual (`tests/visual/`, `config/playwright.visual.config.ts`)
 
-Snapshot regression, configured for **desktop (1280×720), tablet (iPad), and mobile (iPhone 14)** viewports, with `maxDiffPixelRatio: 0.02` / `threshold: 0.05` tolerances and animations disabled for determinism. **Opt-in and excluded from `npm test`** because baseline snapshots need a human-approved first run and are platform/font-rendering sensitive — run it explicitly, and prefer the Docker variant (`npm run test:visual:docker`) for reproducible baselines across machines. Currently: no specs - a real gap, not a deliberate scope decision (see `PLAN.md` Phase 4); the config and `npm run test:visual` command are ready the moment a spec is added.
+Snapshot regression, configured for **desktop (1280×720), tablet (iPad), and mobile (iPhone 14)** viewports, with `maxDiffPixelRatio: 0.02` / `threshold: 0.05` tolerances and animations disabled for determinism. **Opt-in and excluded from `npm test`** because baseline snapshots need a human-approved first run and are platform/font-rendering sensitive — run it explicitly, and prefer the Docker variant (`npm run test:visual:docker`) for reproducible baselines across machines. Currently: 5 scenarios (login, inventory, cart, checkout x2) across all 3 viewports, 15 screenshots total, baselines generated and verified via Docker (pinned to `linux/amd64` to match CI), and a dedicated `visual` leg in the CI matrix.
 
 ### Audit (`tests/audit/`, `config/playwright.audit.config.ts`)
 
@@ -310,16 +307,29 @@ Each MCP template launches the same pinned, **isolated, headless** `@playwright/
 
 `.agents/skills/` is the source of truth; `.claude/skills/` is a generated, verified copy (`npm run skills:sync`, cross-checked by `docs:check`) — **never hand-edit the generated copy**.
 
-| Skill       | Stage(s)                    | Dispatches to                         |
-| :---------- | :-------------------------- | :------------------------------------ |
-| `explore`   | 0-1 — Intake, Explore       | the `explorer` agent                  |
-| `scenarios` | 2-3 — Scenarios, Test cases | (runs directly, no isolation benefit) |
-| `test-spec` | 4 — Test automation         | (runs directly)                       |
-| `pr-review` | 5 — PR review               | the `verifier` agent                  |
+| Skill          | Stage(s)                          | Dispatches to                         |
+| :------------- | :-------------------------------- | :------------------------------------ |
+| `explore`      | 0-1 — Intake, Explore             | the `explorer` agent                  |
+| `scenarios`    | 2-3 — Scenarios, Test cases       | (runs directly, no isolation benefit) |
+| `test-spec`    | 4 — Test automation               | (runs directly)                       |
+| `pr-review`    | 5 — PR review                     | the `verifier` agent                  |
+| `claims-audit` | Maintenance, not a pipeline stage | (runs directly)                       |
 
 Each skill is deliberately "thin" — it points at the real thing (an agent, or `CORE_PRINCIPLES.md` + the target's spec file) and adds no rules of its own, so rules can never drift.
 
 Two standing agents exist, both scoped to where isolation genuinely earns its keep (`D-004`, `INTENT.md` §3): `explorer` (`.agents/agents/explorer.md` — browser tools only, cannot write test code) and `verifier` (`.agents/agents/verifier.md` — read-only, cannot fix code or give the final merge decision). Agents are added only where restricted permissions matter, not by default — every other stage runs in whichever agent is already working.
+
+### Running `claims-audit`
+
+This one isn't invoked as part of the normal pipeline — run it ad hoc,
+whenever you want a reality-check pass: `/claims-audit` in Claude Code (or
+the equivalent in Codex/Gemini), or just ask your AI client to follow
+`.agents/skills/claims-audit/SKILL.md`. Pick one target per run (it names
+five: `AGENTS.md`, `CORE_PRINCIPLES.md`, `INTENT.md`, `README.md`, or
+`docs/LOG.md`'s own "Rules for this file" section) and rotate through them
+over time rather than running the same one repeatedly. It only reports
+findings with evidence — it never fixes anything unilaterally (`D-017`); you
+decide what to act on.
 
 ## Naming conventions
 
