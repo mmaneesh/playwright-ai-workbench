@@ -1,7 +1,7 @@
 # Sauce Demo (Swag Labs): Test Plan
 
 Migrated 2026-11-14 from the retired Sauce Demo workbook (its Sections 1-2)
-into this single-file format (`INTENT.md` §3, §11). No findings were dropped
+into this single-file format (`docs/INTENT.md` §3, §11). No findings were dropped
 in the move - see `docs/targets/saucedemo-defects.md` for the defect ledger.
 
 ## Stage 0 - Intake
@@ -11,7 +11,7 @@ in the move - see `docs/targets/saucedemo-defects.md` for the defect ledger.
   intentionally seeded defects behind specific demo accounts.
 - **Surfaces**: UI only. No API exists for this target. The audit suite
   (`tests/audit/`) already runs against it; the visual suite (`tests/visual/`)
-  now covers it too (`PLAN.md` Phase 4, 2026-11-14) - this line previously
+  now covers it too (`docs/PLAN.md` Phase 4, 2026-11-14) - this line previously
   said neither was opened, which was stale.
 - **Database access**: no.
 - **Auth model**: 6 published demo accounts, password `secret_sauce` for all:
@@ -180,7 +180,7 @@ non-flaky way to assert its slowness is ever found (see "Not covered" below).
 | Item                                      | Reason                                                                                                               | Revisit when                                                                |
 | :---------------------------------------- | :------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------- |
 | `performance_glitch_user` timing          | Confirmed slow (`CH-001`); a fixed threshold would be flaky across CI runners for a risk with no production exposure | A non-flaky way to assert it is found, or a real perf budget is applied     |
-| `visual_user` layout difference           | Confirmed (`CH-001`); needs a screenshot baseline, not a bounding-box heuristic                                      | The visual regression suite exists (`PLAN.md` Phase 4)                      |
+| `visual_user` layout difference           | Confirmed (`CH-001`); needs a screenshot baseline, not a bounding-box heuristic                                      | The visual regression suite exists (`docs/PLAN.md` Phase 4)                 |
 | API, visual, audit suites for this target | No API exists; visual/audit intentionally out of scope for this pass                                                 | If this target is kept as a long-term suite rather than a portability proof |
 | Sort options beyond "Price (low to high)" | Low risk, redundant with `SC-007`'s technique                                                                        | If a sort-specific defect is ever reported                                  |
 
@@ -214,7 +214,7 @@ non-flaky way to assert its slowness is ever found (see "Not covered" below).
 - Confidence: 9
 - Unknowns: none.
 - Rationale: `R-008` and `SC-011`-`SC-015` trace directly to the already-open
-  gap this stage was scoped to close (`PLAN.md` Phase 4); baselines were
+  gap this stage was scoped to close (`docs/PLAN.md` Phase 4); baselines were
   generated and re-verified in Docker specifically to avoid the
   arm64-laptop-vs-amd64-CI rendering mismatch, not assumed safe. The one
   remaining unknown - whether the new CI matrix entry actually passes on a

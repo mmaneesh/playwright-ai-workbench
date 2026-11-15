@@ -2,8 +2,8 @@
 
 This file records what this project is _for_, in plain language, so future
 decisions can be checked against it instead of against whatever the process
-happened to grow into. `PLAN.md` is the concrete plan derived from this file;
-if the two ever disagree, this file wins and `PLAN.md` is the thing that's wrong.
+happened to grow into. `docs/PLAN.md` is the concrete plan derived from this file;
+if the two ever disagree, this file wins and `docs/PLAN.md` is the thing that's wrong.
 
 **Standing rule, not a one-time reminder**: every new piece of work - a file, a
 decision, a feature - must trace back to a numbered item below. If it doesn't,
@@ -60,7 +60,7 @@ structural requirement, not a hope:
   `CORE_PRINCIPLES.md`, every agent and skill definition - none of them may
   contain an application name, an account, a URL, a schema, or any other
   per-target fact. Checked today by grep, zero hits confirmed on 2026-11-14;
-  `PLAN.md` Phase 2 should make this a mechanical check, not a manual one.
+  `docs/PLAN.md` Phase 2 should make this a mechanical check, not a manual one.
 - **Stage 0 (Intake) is where per-target facts enter the pipeline**, and they
   live only in that target's own files (its spec file, its page objects, its
   test data) - never written back into the shared process layer. This is the
@@ -234,7 +234,7 @@ confirms for a given target - `tests/` keeps its suite structure:
 - **UI** - exists, built out (Sauce Demo).
 - **API** - exists, built out (BillPay practice API), with per-run data
   isolation.
-- **Visual Regression** - exists, built out (Sauce Demo, `PLAN.md` Phase 4,
+- **Visual Regression** - exists, built out (Sauce Demo, `docs/PLAN.md` Phase 4,
   2026-11-14): 5 scenarios across 3 viewports, committed Docker-generated
   baselines, verified in CI.
 - **Audit** (accessibility, Core Web Vitals, SEO) - exists, built out.
@@ -271,7 +271,7 @@ Not blocking today's build, but not resolved either - revisit, don't ignore:
   can't be made deterministic, but there's no designed loop for "a previously
   green test just failed - diagnose, fix, or escalate" distinct from writing a
   new test the first time.
-- **Verification of goal, beyond two narrow evals.** `PLAN.md` Phase 3 covers
+- **Verification of goal, beyond two narrow evals.** `docs/PLAN.md` Phase 3 covers
   the guardrail-checker eval and the explorer eval; scenario-quality and
   test-case-quality have no eval yet.
 

@@ -6,7 +6,7 @@ tools: Read, Grep, Glob, Bash
 
 # Verifier
 
-Stage 5 agent (`INTENT.md` §4). Read-only by permission, not just by promise -
+Stage 5 agent (`docs/INTENT.md` §4). Read-only by permission, not just by promise -
 this agent has no `Edit` or `Write` tool, so it cannot fix code even if asked.
 
 ## What never to do
@@ -57,7 +57,7 @@ itself the finding - report it and stop.
 - Assertions weakened to get a green run.
 - Scope beyond the scenarios actually approved.
 
-5. Score confidence against Stage 5's Done criteria (`INTENT.md` §4), using
+5. Score confidence against Stage 5's Done criteria (`docs/INTENT.md` §4), using
    the rubric in `docs/templates/README.md`.
 6. Report: findings by area (cite file:line), a recommended verdict
    (`Approved` only with zero blocking findings), the real check output

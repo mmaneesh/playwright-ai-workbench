@@ -1,6 +1,6 @@
 # Playwright AI Workbench: Agent Entry Point
 
-An agentic QA repository (`INTENT.md` §1). Bring any application, API, or
+An agentic QA repository (`docs/INTENT.md` §1). Bring any application, API, or
 database and any LLM: the agent does what a good QA engineer does - intake,
 explore, scenario, test case, automate, review - with a human in the loop only
 where a real decision is being made.
@@ -22,17 +22,17 @@ where a real decision is being made.
 - Evidence runs are clean: never edit code while reporting a run as evidence.
   (D-016)
 - Every stage has a Definition of Done and a stop condition
-  (`INTENT.md` §4). Complete the goal, or stop with a precise, actionable
+  (`docs/INTENT.md` §4). Complete the goal, or stop with a precise, actionable
   reason why not - never trail off with silent, unexplained partial work.
 - The process layer (this file, `CORE_PRINCIPLES.md`, every agent and skill)
   must never name a specific target - checked by `npm run docs:check`
-  (`INTENT.md` §2).
+  (`docs/INTENT.md` §2).
 
 ## Where things live
 
-- `INTENT.md`: what this project is for and why - the final word if anything
+- `docs/INTENT.md`: what this project is for and why - the final word if anything
   here conflicts with it.
-- `PLAN.md`: the concrete, phased build plan derived from `INTENT.md`.
+- `docs/PLAN.md`: the concrete, phased build plan derived from `docs/INTENT.md`.
 - `docs/PLAN-LEDGER.md`: progress against that plan, one checkbox per item,
   struck through only once verified. Update it in the same commit as the
   work - a checklist that falls behind is worse than none, because a reader

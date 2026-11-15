@@ -9,4 +9,4 @@ Dispatches to the `verifier` agent (`.claude/agents/verifier.md`) - read-only
 tools, cannot fix code, cannot give the final merge decision. See that agent's
 file for its full procedure and review-area table.
 
-The human always makes the final merge decision (`INTENT.md` §4, Stage 5).
+The human always makes the final merge decision (`docs/INTENT.md` §4, Stage 5).

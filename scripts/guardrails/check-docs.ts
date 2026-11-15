@@ -83,10 +83,10 @@ function checkLog(): void {
   }
 }
 
-// Per INTENT.md §4 and the rubric in docs/templates/README.md: every
+// Per docs/INTENT.md §4 and the rubric in docs/templates/README.md: every
 // "## Confidence Log" entry in a spec file must have all three fields,
 // Confidence an integer 1-10 - makes the confidence rubric mechanically
-// enforced instead of an instruction nothing verifies (PLAN.md Phase 3).
+// enforced instead of an instruction nothing verifies (docs/PLAN.md Phase 3).
 function checkConfidenceBlocks(): void {
   if (!fs.existsSync(SPECS_DIR)) return;
   for (const name of fs.readdirSync(SPECS_DIR)) {
@@ -122,7 +122,7 @@ function checkConfidenceBlocks(): void {
   }
 }
 
-// Per INTENT.md §2: a target's origin must be allowed before the browser MCP
+// Per docs/INTENT.md §2: a target's origin must be allowed before the browser MCP
 // server can navigate there, and a config that lingers with a removed
 // target's origin is itself a stale, orphaned entry nobody would notice.
 function checkAllowedOrigins(): void {
@@ -169,7 +169,7 @@ function checkAllowedOrigins(): void {
   }
 }
 
-// Per INTENT.md §2: the process layer must never name a specific target. Checks
+// Per docs/INTENT.md §2: the process layer must never name a specific target. Checks
 // every name in docs/targets/REGISTRY.md against AGENTS.md, CORE_PRINCIPLES.md,
 // and every agent/skill file - replacing the one-off grep done by hand before.
 function checkProcessLayerAgnostic(): void {

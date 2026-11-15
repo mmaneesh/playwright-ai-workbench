@@ -9,7 +9,7 @@ Reads `specs/<target>.plan.md` (Stage 0-1 findings) and
 `docs/templates/README.md` (vocabulary: IDs, priority math, techniques,
 oracles, automation-decision scoring). Writes into the same spec file - no
 separate Risk Register, Test Techniques, or Scenario Catalog table
-(`INTENT.md` §3).
+(`docs/INTENT.md` §3).
 
 ## What never to do
 
@@ -38,7 +38,7 @@ separate Risk Register, Test Techniques, or Scenario Catalog table
 3. Anything not worth automating gets a charter (`CH-nnn`) or an explicit
    "Not covered" with a reason - nothing silently dropped.
 
-## Done / stop conditions (`INTENT.md` §4)
+## Done / stop conditions (`docs/INTENT.md` §4)
 
 **Stage 2 done when**: every risk-bearing finding has a scenario, a charter, or
 a "Not covered" with a reason; every scenario carries risk, priority,

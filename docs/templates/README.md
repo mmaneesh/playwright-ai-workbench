@@ -2,7 +2,7 @@
 
 Single source for the terms, IDs, and scoring used across every target's spec
 file (`specs/<target>.plan.md`) and defect ledger. Referenced, never restated -
-per `INTENT.md` §3, a fact lives here once.
+per `docs/INTENT.md` §3, a fact lives here once.
 
 ## IDs
 
@@ -32,7 +32,7 @@ a one-line reason.
 ## Test level
 
 `UI`, `API`, `Visual`, `Audit`, `DB` (only for a target where Stage 0 Intake
-confirmed real database access - see `INTENT.md` §2).
+confirmed real database access - see `docs/INTENT.md` §2).
 
 ## SFDIPOT - product coverage model
 
@@ -128,7 +128,7 @@ write-up depth that actually needs.
 ## Confidence rubric
 
 Every stage ends by reporting this block before stating it's done
-(`INTENT.md` §3, §4):
+(`docs/INTENT.md` §3, §4):
 
 ```
 ## Confidence
@@ -138,7 +138,7 @@ Every stage ends by reporting this block before stating it's done
 ```
 
 **Confidence** is scored against _that stage's own Definition of Done_
-(`INTENT.md` §4) - not a feeling:
+(`docs/INTENT.md` §4) - not a feeling:
 
 | Band   | Score  | Requires                                                                                                                                                                                                                                                                                                     |
 | :----- | :----- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

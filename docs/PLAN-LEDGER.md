@@ -3,7 +3,7 @@
 Updated: 2026-11-14.
 
 This is the single place to check what's actually done versus pending -
-`PLAN.md` records the agreed _plan_, this file tracks _progress against it_
+`docs/PLAN.md` records the agreed _plan_, this file tracks _progress against it_
 with a checkbox per concrete item, struck through only once verified, never
 on intent alone. If this file and reality disagree, this file is wrong and
 gets fixed, not reality.
@@ -19,11 +19,11 @@ history, per `D-007`; they are not current state.
 
 Moved to [`docs/targets/REGISTRY.md`](targets/REGISTRY.md), which also doubles
 as the keyword list `npm run docs:check` greps the process layer against
-(`INTENT.md` §2) - one file, one owner, mechanically checked.
+(`docs/INTENT.md` §2) - one file, one owner, mechanically checked.
 
 ---
 
-## `PLAN.md` Phase 1 — Foundations (Verified, complete)
+## `docs/PLAN.md` Phase 1 — Foundations (Verified, complete)
 
 - [x] ~~Authoritative blueprint: `CORE_PRINCIPLES.md` covering Commands, Code Standards, Guardrails, Folder Structure, Naming Conventions, Workflow & Approvals.~~
 - [x] ~~Signal-only orchestrators: tabular `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`.~~
@@ -36,10 +36,10 @@ as the keyword list `npm run docs:check` greps the process layer against
 
 ---
 
-## `PLAN.md` Phase 2 — Lean agentic workflow (Verified, complete 2026-11-14)
+## `docs/PLAN.md` Phase 2 — Lean agentic workflow (Verified, complete 2026-11-14)
 
 Commits `3c35388`, `7186750`. Full item-by-item detail of what moved where is
-in `INTENT.md` §3/§5/§11 - this is the checklist, not the rationale.
+in `docs/INTENT.md` §3/§5/§11 - this is the checklist, not the rationale.
 
 - [x] ~~`specs/TEMPLATE.md` created; proven on a real target as `specs/saucedemo.plan.md`~~, replacing the retired 443-line Sauce Demo workbook with zero scenarios or defects dropped.
 - [x] ~~`docs/templates/README.md` trimmed to the shared vocabulary~~ (IDs, priority math, SFDIPOT, the 3 tours, the 11 oracles, test techniques, automation-decision scoring, defect severity/status, the confidence rubric).
@@ -50,22 +50,22 @@ in `INTENT.md` §3/§5/§11 - this is the checklist, not the rationale.
 - [x] ~~`AGENTS.md` rewritten lean.~~
 - [x] ~~`docs/LOG.md` pruned~~ of 5 entries (`D-001`, `D-005`, `D-006`, `D-011`, `D-020`, `L-004`) whose cause no longer exists.
 - [x] ~~6 retired phase templates deleted~~ (`01-EXPLORATION` through `06-PR-REVIEW`).
-- [x] ~~Confidence rubric added~~: `docs/templates/README.md` (the one definition), `INTENT.md` §3/§4, all 4 agent/skill files report it.
-- [ ] **Open**: `.mcp.json`/`.agents/mcp_config.json`/`.codex/config.toml` still hardcode the Sauce Demo/BillPay origins in `--allowed-origins` - a real agnosticism gap (`INTENT.md` §2). Stage 0 Intake now says to add a new target's origin there by hand; no mechanical check yet that this list matches `docs/targets/REGISTRY.md`. Folded into Phase 3 below.
+- [x] ~~Confidence rubric added~~: `docs/templates/README.md` (the one definition), `docs/INTENT.md` §3/§4, all 4 agent/skill files report it.
+- [ ] **Open**: `.mcp.json`/`.agents/mcp_config.json`/`.codex/config.toml` still hardcode the Sauce Demo/BillPay origins in `--allowed-origins` - a real agnosticism gap (`docs/INTENT.md` §2). Stage 0 Intake now says to add a new target's origin there by hand; no mechanical check yet that this list matches `docs/targets/REGISTRY.md`. Folded into Phase 3 below.
 - [ ] **Open**: the confidence rubric itself is not mechanically enforced - nothing verifies a stage actually reported it, or that the gate (`Confidence >= 8` and `Unknowns: none`) was honestly met. Folded into Phase 3 below.
 
 ---
 
-## `PLAN.md` Phase 3 — Evals (Verified, complete with one honest caveat)
+## `docs/PLAN.md` Phase 3 — Evals (Verified, complete with one honest caveat)
 
 - [x] ~~Guardrail-checker eval~~ (`scripts/guardrails/check-rules.eval.ts`, `npm run guardrails:eval`, wired into `npm run check`): 11 known-bad/known-good cases. Found and fixed a real bug while building it - the `NO_XPATH` pattern failed on a common XPath like `"//button[@id='submit']"` because its exclusion-based middle broke on an embedded quote of the other kind.
 - [x] ~~Explorer eval~~ (`scripts/evals/explorer.eval.ts`, `npm run eval:explorer`): asserts `specs/saucedemo.plan.md` still names `problem_user`'s broken image (`DEF-002`), `error_user`'s exception (`DEF-003`), `DEF-001`, and the two explicit not-covered accounts. **Honest scope**: this is a regression guard on recorded ground truth, not a live re-run of the explorer agent against Sauce Demo - a genuine live re-run would need a real LLM call and a browser, too costly/flaky to run on every `npm run check`. Verified it catches an injected regression (renamed a finding) before trusting it.
 - [x] ~~Mechanical check that a `specs/<target>.plan.md` contains a well-formed `## Confidence Log`~~ (`checkConfidenceBlocks()` in `check-docs.ts`): the three fields present, `Confidence` an integer 1-10, per entry. Verified it actually catches a broken entry (out-of-range score, missing field) before trusting it. `specs/saucedemo.plan.md` backfilled with real, honestly-scored entries for the work already done.
 - [x] ~~Mechanical check that `--allowed-origins` matches `docs/targets/REGISTRY.md`~~ (`checkAllowedOrigins()` in `check-docs.ts`): added an Origin column to the registry; every active target's origin must appear in all three MCP configs, and any origin in a config that isn't an active registry target is flagged as orphaned. Verified it catches an injected stale origin before trusting it. Closes the Phase 2 agnosticism gap above.
 - [ ] **Open, not done today**: framework self-tests for the docs checker (`check-docs.ts`) itself are not persisted as an automated eval, unlike the guardrail checker's. Each new check above (`checkConfidenceBlocks`, `checkAllowedOrigins`) was manually verified during this session to catch an injected failure and then restored - real evidence it works today, but not a standing regression test the way `check-rules.eval.ts` is. `check-docs.ts`'s functions read hardcoded relative paths directly rather than taking an injectable base directory, which would need a small refactor first to test cleanly - deferred rather than rushed.
-- [x] ~~Cleanup pass against `INTENT.md`: README.md's entire "6-phase workflow" section, its project-structure listing, skills/agents table, and "Adapting this to your own application" guide all still described the retired process as current - rewritten to the Stage 0-5 pipeline. `CORE_PRINCIPLES.md`'s one stray "Phase 2" reference fixed to "Stage 2."~~ Swept the rest of the repo (CI workflow, `.mcp.json`/`.agents`/`.codex` configs, orphaned files, empty directories, TestDino leftovers) - nothing else found.
+- [x] ~~Cleanup pass against `docs/INTENT.md`: README.md's entire "6-phase workflow" section, its project-structure listing, skills/agents table, and "Adapting this to your own application" guide all still described the retired process as current - rewritten to the Stage 0-5 pipeline. `CORE_PRINCIPLES.md`'s one stray "Phase 2" reference fixed to "Stage 2."~~ Swept the rest of the repo (CI workflow, `.mcp.json`/`.agents`/`.codex` configs, orphaned files, empty directories, TestDino leftovers) - nothing else found.
 
-## `PLAN.md` Phase 4 — Visual regression suite (Verified, complete with one open item)
+## `docs/PLAN.md` Phase 4 — Visual regression suite (Verified, complete with one open item)
 
 - [x] ~~Scope agreed: which pages, which viewports, how many baseline variants.~~
       5 scenarios (`SC-011`-`SC-015`: login, inventory, cart, checkout info step,
@@ -88,7 +88,7 @@ in `INTENT.md` §3/§5/§11 - this is the checklist, not the rationale.
       `ubuntu-latest` run, alongside every other existing leg - not just a
       local Docker pass.
 
-## `PLAN.md` Phase 5 — Database testing, scoping only (Verified, complete)
+## `docs/PLAN.md` Phase 5 — Database testing, scoping only (Verified, complete)
 
 - [x] ~~Decide: bring a concrete target with real DB access, or document a
       through-the-API/UI data-integrity testing strategy.~~ Decided:
@@ -98,7 +98,7 @@ in `INTENT.md` §3/§5/§11 - this is the checklist, not the rationale.
       already-proven `isolatedUser` pattern), referential integrity observed
       indirectly, and idempotency - explicitly not SQL/schema/transaction
       testing. Gated to be superseded the moment Stage 0 Intake confirms a
-      target with real DB access, per `INTENT.md` §8. Zero new test files,
+      target with real DB access, per `docs/INTENT.md` §8. Zero new test files,
       zero new target facts - `npm run check` passes.
 
 ---
@@ -117,11 +117,11 @@ in `INTENT.md` §3/§5/§11 - this is the checklist, not the rationale.
 - [x] ~~WCAG 2.1 AA Accessibility Specification~~ (`tests/audit/accessibility.spec.ts`): full `@axe-core/playwright` scan, zero suppressions.
 - [x] ~~Core Web Vitals & Performance Audit~~ (`tests/audit/web-vitals.spec.ts`): `PerformanceObserver`-based LCP/CLS/FCP/TTFB, fixed 2026-11-10 so a missing measurement fails instead of defaulting to 0.
 - [x] ~~SEO & Image Lazy-Loading Audit~~ (`tests/audit/seo.spec.ts`).
-- [x] ~~UI reference suite for Sauce Demo~~ (`tests/ui/saucedemo/`) - see `specs/saucedemo.plan.md` for the live scenario list; visual regression is tracked as `PLAN.md` Phase 4 above, not here.
+- [x] ~~UI reference suite for Sauce Demo~~ (`tests/ui/saucedemo/`) - see `specs/saucedemo.plan.md` for the live scenario list; visual regression is tracked as `docs/PLAN.md` Phase 4 above, not here.
 
-### Supervised AI Harness, Specialist Roles & Scaffolding (superseded 2026-11-14 by `PLAN.md` Phase 2 above)
+### Supervised AI Harness, Specialist Roles & Scaffolding (superseded 2026-11-14 by `docs/PLAN.md` Phase 2 above)
 
-- [x] ~~6-Phase Engineering Lifecycle & Blueprint Templates (`docs/templates/`).~~ Superseded: all 6 phase templates retired, substance moved per `INTENT.md` §3/§5/§11.
+- [x] ~~6-Phase Engineering Lifecycle & Blueprint Templates (`docs/templates/`).~~ Superseded: all 6 phase templates retired, substance moved per `docs/INTENT.md` §3/§5/§11.
 - [x] ~~Single-Workbook Target Architecture.~~ Superseded: `docs/targets/<site>.md` retired in favor of `specs/<target>.plan.md`.
 - [x] ~~Agent Skills Library.~~ Superseded set (2026-11-14): `explore`, `scenarios`, `test-spec`, `pr-review`.
 - [x] ~~Autonomous Exploration Agent Definition & MCP Wiring.~~ Superseded: `explorer` now also covers Stage 0 Intake; `verifier` added for Stage 5.

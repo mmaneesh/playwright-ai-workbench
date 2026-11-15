@@ -1,6 +1,6 @@
 # Playwright AI Workbench
 
-An agentic QA framework (`INTENT.md`): bring any application, API, or database and any LLM, and the agent does what a good QA engineer does — intake, explore, scenario, test case, automate, review — with a human in the loop only where a real decision is being made. It is a complete, working reference implementation covering UI, API, visual, and accessibility/SEO/performance testing, with first-class support for AI coding agents (Claude Code, Codex, Antigravity) to do the work.
+An agentic QA framework (`docs/INTENT.md`): bring any application, API, or database and any LLM, and the agent does what a good QA engineer does — intake, explore, scenario, test case, automate, review — with a human in the loop only where a real decision is being made. It is a complete, working reference implementation covering UI, API, visual, and accessibility/SEO/performance testing, with first-class support for AI coding agents (Claude Code, Codex, Antigravity) to do the work.
 
 It currently runs against two public demo targets (a sample e-commerce storefront and a bill-pay API) so anyone can clone it and get a fully green run with zero configuration.
 
@@ -91,8 +91,8 @@ playwright-ai-workbench/
 ├── AGENTS.md                  # Entry point for any AI agent: read order + rules that cannot wait
 ├── CLAUDE.md / GEMINI.md      # Thin client-specific stubs that point at AGENTS.md
 ├── CORE_PRINCIPLES.md         # The actual code rules: commands, standards, guardrails, naming, approvals
-├── INTENT.md                  # What this project is for and why - the final word if anything conflicts
-├── PLAN.md                    # The concrete, phased build plan derived from INTENT.md
+├── docs/INTENT.md                  # What this project is for and why - the final word if anything conflicts
+├── docs/PLAN.md                    # The concrete, phased build plan derived from docs/INTENT.md
 ├── specs/                     # One living plan.md per target: intake, findings, scenarios, test cases
 ├── config/                    # One independent Playwright config per suite
 │   ├── playwright.ui.config.ts
@@ -256,7 +256,7 @@ The image pins `mcr.microsoft.com/playwright:v1.63.0-noble` — keep this tag an
 
 ## The agentic pipeline
 
-This is what makes the framework "AI-first" rather than just "AI-compatible": every target moves through six stages, with one living spec file per target (`specs/<target>.plan.md`) as the single source of truth — not six separately-tracked workbook sections (`INTENT.md` §1, §4):
+This is what makes the framework "AI-first" rather than just "AI-compatible": every target moves through six stages, with one living spec file per target (`specs/<target>.plan.md`) as the single source of truth — not six separately-tracked workbook sections (`docs/INTENT.md` §1, §4):
 
 | #   | Stage               | Question it answers                               | Done when                                                                                |
 | :-- | :------------------ | :------------------------------------------------ | :--------------------------------------------------------------------------------------- |
@@ -274,16 +274,16 @@ stage's own stop-and-ask condition, made visible instead of left to prose.
 
 Supporting documents, each with exactly one owner so facts never need to be copied between them:
 
-- **`INTENT.md`** — what this project is for and why; wins if anything else conflicts with it.
+- **`docs/INTENT.md`** — what this project is for and why; wins if anything else conflicts with it.
 - **`AGENTS.md`** — the single entry point for any agent, any model: the rules that cannot wait.
 - **`CORE_PRINCIPLES.md`** — the actual code rules (commands, standards, guardrails, structure, naming, approval gates).
 - **`docs/templates/README.md`** — the shared vocabulary: IDs, priority math, SFDIPOT, the 3 tours, the 11 oracles, test techniques, automation-decision scoring, the confidence rubric.
 - **`specs/<target>.plan.md`** — the living plan for one target (Stages 0-3); **`docs/targets/<target>-defects.md`** — its defect ledger.
 - **`docs/targets/REGISTRY.md`** — every target this repo has been pointed at, and the keyword list that keeps the process layer agnostic (`npm run docs:check` enforces it).
 - **`docs/LOG.md`** — a deliberately bounded (~30 active entries) log of framework-wide decisions (`D-nnn`) and lessons learned from mistakes (`L-nnn`); entries get promoted into a permanent rule or retired and deleted — this file is never allowed to become an unbounded archive.
-- **`docs/PLAN-LEDGER.md`** — progress against `PLAN.md`, one checkbox per item, kept current in the same commit as the work.
+- **`docs/PLAN-LEDGER.md`** — progress against `docs/PLAN.md`, one checkbox per item, kept current in the same commit as the work.
 
-**Hard rules that govern this process** (see `AGENTS.md`, `INTENT.md` §3):
+**Hard rules that govern this process** (see `AGENTS.md`, `docs/INTENT.md` §3):
 
 - The decision layer always stays with a human; agents recommend, never give the final merge decision.
 - Only _agreed_ facts get written down — discussion is not approval.
@@ -317,7 +317,7 @@ Each MCP template launches the same pinned, **isolated, headless** `@playwright/
 
 Each skill is deliberately "thin" — it points at the real thing (an agent, or `CORE_PRINCIPLES.md` + the target's spec file) and adds no rules of its own, so rules can never drift.
 
-Two standing agents exist, both scoped to where isolation genuinely earns its keep (`D-004`, `INTENT.md` §3): `explorer` (`.agents/agents/explorer.md` — browser tools only, cannot write test code) and `verifier` (`.agents/agents/verifier.md` — read-only, cannot fix code or give the final merge decision). Agents are added only where restricted permissions matter, not by default — every other stage runs in whichever agent is already working.
+Two standing agents exist, both scoped to where isolation genuinely earns its keep (`D-004`, `docs/INTENT.md` §3): `explorer` (`.agents/agents/explorer.md` — browser tools only, cannot write test code) and `verifier` (`.agents/agents/verifier.md` — read-only, cannot fix code or give the final merge decision). Agents are added only where restricted permissions matter, not by default — every other stage runs in whichever agent is already working.
 
 ### Running `claims-audit`
 
@@ -325,7 +325,7 @@ This one isn't invoked as part of the normal pipeline — run it ad hoc,
 whenever you want a reality-check pass: `/claims-audit` in Claude Code (or
 the equivalent in Codex/Gemini), or just ask your AI client to follow
 `.agents/skills/claims-audit/SKILL.md`. Pick one target per run (it names
-five: `AGENTS.md`, `CORE_PRINCIPLES.md`, `INTENT.md`, `README.md`, or
+five: `AGENTS.md`, `CORE_PRINCIPLES.md`, `docs/INTENT.md`, `README.md`, or
 `docs/LOG.md`'s own "Rules for this file" section) and rotate through them
 over time rather than running the same one repeatedly. It only reports
 findings with evidence — it never fixes anything unilaterally (`D-017`); you
@@ -349,7 +349,7 @@ Full rules, including test-structure conventions (one scenario per test, `test.d
 
 ## Adapting this to your own application
 
-This framework is intentionally agnostic at the architecture level (configs, guardrails, CI shape, the agentic pipeline, the generic audit suite — `INTENT.md` §2) but **not** magically portable at the test level — swapping `UI_BASE_URL`/`API_BASE_URL` alone does not adapt page objects, locators, or scenarios to a different application. To point this at your own app:
+This framework is intentionally agnostic at the architecture level (configs, guardrails, CI shape, the agentic pipeline, the generic audit suite — `docs/INTENT.md` §2) but **not** magically portable at the test level — swapping `UI_BASE_URL`/`API_BASE_URL` alone does not adapt page objects, locators, or scenarios to a different application. To point this at your own app:
 
 1. Run `npm run env:config -- stg` (or add a new `env-config/<yourenv>.env`) and set real URLs.
 2. Add your target to `docs/targets/REGISTRY.md` and its origin to `.mcp.json`'s `--allowed-origins` (and the `.agents`/`.codex` equivalents).
@@ -392,7 +392,7 @@ The sections above describe what exists today. The items below are my own assess
 
 - Move the guardrail checker from regex-based matching to an AST-based check (e.g. `ts-morph`) as the ruleset grows, to avoid false positives/negatives in string literals and reformatted code.
 - Align dependency, container and browser versions with an explicit update workflow, rather than ad hoc bumps.
-- Verify the agnostic pipeline (`INTENT.md` §2) against a target this repo hasn't tried yet — ideally one with real database access, to retire §8's "Database: aspirational" line with a real example instead of a promise.
+- Verify the agnostic pipeline (`docs/INTENT.md` §2) against a target this repo hasn't tried yet — ideally one with real database access, to retire §8's "Database: aspirational" line with a real example instead of a promise.
 
 **Longer-term (maturity):**
 

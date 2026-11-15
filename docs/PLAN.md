@@ -2,7 +2,7 @@
 
 Build a personal, production-grade, AI-native Playwright + TypeScript test automation workbench: an original, deliberate architecture free from legacy baggage or god-object antipatterns.
 
-This plan is derived from `INTENT.md`; if they disagree, `INTENT.md` wins. Phase 1 below shipped and is correct as built - nothing in it is affected by Phases 2+. Phases 2+ exist because the process built on top of Phase 1 (the 6-phase workbook) drifted from the intent `INTENT.md` restates (see its §7). Each phase below still needs explicit review and approval before implementation, per the Boundaries section - writing this plan is not that approval.
+This plan is derived from `docs/INTENT.md`; if they disagree, `docs/INTENT.md` wins. Phase 1 below shipped and is correct as built - nothing in it is affected by Phases 2+. Phases 2+ exist because the process built on top of Phase 1 (the 6-phase workbook) drifted from the intent `docs/INTENT.md` restates (see its §7). Each phase below still needs explicit review and approval before implementation, per the Boundaries section - writing this plan is not that approval.
 
 ## Phase 1 — foundations
 
@@ -27,10 +27,10 @@ This plan is derived from `INTENT.md`; if they disagree, `INTENT.md` wins. Phase
 
 ## Phase 2 — Lean agentic workflow (replaces the 6-phase workbook process)
 
-Per `INTENT.md` §3-5: every guardrail, oracle, tour, risk-priority rule and RIMGEA
+Per `docs/INTENT.md` §3-5: every guardrail, oracle, tour, risk-priority rule and RIMGEA
 defect standard survives. What changes is the container - one fact recorded once,
 inline with the agent that needs it, instead of fanned across five tables and a
-sign-off gate that `INTENT.md` §2 shows was never once honored.
+sign-off gate that `docs/INTENT.md` §2 shows was never once honored.
 
 **Created:**
 
@@ -47,13 +47,13 @@ sign-off gate that `INTENT.md` §2 shows was never once honored.
 - A **verifier** agent (named in `D-004`, never built): read-only tools, isolated
   from the authoring agent, carries Phase 6's 5 guardrails inline. Reviews a
   diff and recommends a verdict; never fixes code itself and never gives the
-  final merge decision - that stays with the human (`INTENT.md` §4 Stage 5).
-- An **Intake** step (Stage 0, `INTENT.md` §1/§4): not a separate agent - no
+  final merge decision - that stays with the human (`docs/INTENT.md` §4 Stage 5).
+- An **Intake** step (Stage 0, `docs/INTENT.md` §1/§4): not a separate agent - no
   isolation benefit per `D-004`'s own reasoning - but an explicit first step of
   the workflow skill that asks what's being tested, its surfaces, auth, and
   scope, and writes the answers into that target's spec file before Explore
   starts.
-- A mechanical agnosticism check (`INTENT.md` §2): extends
+- A mechanical agnosticism check (`docs/INTENT.md` §2): extends
   `scripts/guardrails/check-docs.ts` (or a sibling script) to fail if any
   per-target name (an app, account, URL, or schema) appears in the process
   layer (`AGENTS.md`, `CORE_PRINCIPLES.md`, any agent or skill file) - replacing
@@ -62,7 +62,7 @@ sign-off gate that `INTENT.md` §2 shows was never once honored.
   invokable entry point but gets its own phase's guardrails written inline and
   points at the new spec-file format, not the retired templates.
 
-**Retired** (substance preserved per `INTENT.md` §3, moved per above; no net loss):
+**Retired** (substance preserved per `docs/INTENT.md` §3, moved per above; no net loss):
 
 - `docs/templates/`'s six numbered phase templates (deleted 2026-11-14 - their
   substance moved into the `explorer`/`verifier` agents and the
@@ -86,13 +86,13 @@ sign-off gate that `INTENT.md` §2 shows was never once honored.
 - `AGENTS.md` rewritten short (per the sketch already shown and agreed): MUST/WON'T
   list, point to the workflow skill, no "read these 5 documents first."
 
-**Unaffected** (per `INTENT.md` §5): `CORE_PRINCIPLES.md`, `npm run check` and its
+**Unaffected** (per `docs/INTENT.md` §5): `CORE_PRINCIPLES.md`, `npm run check` and its
 scripts, the CI matrix, Docker, page-object/fixture conventions, Zod schemas,
 `docs/LOG.md`, the thin-skill-points-at-the-real-thing pattern itself.
 
 ## Phase 3 — Evals
 
-Per `INTENT.md` §2: small, concrete, pinned to known truth, not a framework.
+Per `docs/INTENT.md` §2: small, concrete, pinned to known truth, not a framework.
 
 - **Guardrail checker eval**: a fixed set of known-bad snippets (`waitForTimeout`,
   XPath, `any`, pseudo-Gherkin) that must be rejected, and known-good snippets that
@@ -105,14 +105,14 @@ Per `INTENT.md` §2: small, concrete, pinned to known truth, not a framework.
 
 ## Phase 4 — Visual regression suite
 
-Per `INTENT.md` §8: `tests/visual/` has config but zero specs today - a real gap,
+Per `docs/INTENT.md` §8: `tests/visual/` has config but zero specs today - a real gap,
 not a deliberate scope decision. Scope (which pages, which viewports, how many
 baseline variants) gets agreed before any spec is written, so it doesn't overshoot
 into a dozen snapshot variants nobody reviews.
 
 ## Phase 5 — Database testing (scoping only)
 
-Per `INTENT.md` §8: aspirational. Today's targets expose no direct database
+Per `docs/INTENT.md` §8: aspirational. Today's targets expose no direct database
 access. This phase is "decide whether a concrete target with real DB access
 exists, or document a through-the-API/UI data-integrity testing strategy" - not
 "build a `tests/db/` folder" until that's answered.
