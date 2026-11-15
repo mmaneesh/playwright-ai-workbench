@@ -307,12 +307,13 @@ Each MCP template launches the same pinned, **isolated, headless** `@playwright/
 
 `.agents/skills/` is the source of truth; `.claude/skills/` is a generated, verified copy (`npm run skills:sync`, cross-checked by `docs:check`) — **never hand-edit the generated copy**.
 
-| Skill       | Stage(s)                    | Dispatches to                         |
-| :---------- | :-------------------------- | :------------------------------------ |
-| `explore`   | 0-1 — Intake, Explore       | the `explorer` agent                  |
-| `scenarios` | 2-3 — Scenarios, Test cases | (runs directly, no isolation benefit) |
-| `test-spec` | 4 — Test automation         | (runs directly)                       |
-| `pr-review` | 5 — PR review               | the `verifier` agent                  |
+| Skill          | Stage(s)                          | Dispatches to                         |
+| :------------- | :-------------------------------- | :------------------------------------ |
+| `explore`      | 0-1 — Intake, Explore             | the `explorer` agent                  |
+| `scenarios`    | 2-3 — Scenarios, Test cases       | (runs directly, no isolation benefit) |
+| `test-spec`    | 4 — Test automation               | (runs directly)                       |
+| `pr-review`    | 5 — PR review                     | the `verifier` agent                  |
+| `claims-audit` | Maintenance, not a pipeline stage | (runs directly)                       |
 
 Each skill is deliberately "thin" — it points at the real thing (an agent, or `CORE_PRINCIPLES.md` + the target's spec file) and adds no rules of its own, so rules can never drift.
 
