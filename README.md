@@ -319,6 +319,18 @@ Each skill is deliberately "thin" — it points at the real thing (an agent, or 
 
 Two standing agents exist, both scoped to where isolation genuinely earns its keep (`D-004`, `INTENT.md` §3): `explorer` (`.agents/agents/explorer.md` — browser tools only, cannot write test code) and `verifier` (`.agents/agents/verifier.md` — read-only, cannot fix code or give the final merge decision). Agents are added only where restricted permissions matter, not by default — every other stage runs in whichever agent is already working.
 
+### Running `claims-audit`
+
+This one isn't invoked as part of the normal pipeline — run it ad hoc,
+whenever you want a reality-check pass: `/claims-audit` in Claude Code (or
+the equivalent in Codex/Gemini), or just ask your AI client to follow
+`.agents/skills/claims-audit/SKILL.md`. Pick one target per run (it names
+five: `AGENTS.md`, `CORE_PRINCIPLES.md`, `INTENT.md`, `README.md`, or
+`docs/LOG.md`'s own "Rules for this file" section) and rotate through them
+over time rather than running the same one repeatedly. It only reports
+findings with evidence — it never fixes anything unilaterally (`D-017`); you
+decide what to act on.
+
 ## Naming conventions
 
 | Element     | Convention                     | Example                        |
