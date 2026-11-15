@@ -29,7 +29,7 @@ It currently runs against two public demo targets (a sample e-commerce storefron
 ## What this repo can do
 
 - **Run four independent test suites** against a web app and its API: functional UI/E2E, API contract, visual regression, and accessibility/SEO/web-vitals audits — each with its own Playwright config, browser matrix, and reporter.
-- **Switch target environments atomically** (`dev`, `stg`, `uat`, `prod`, plus the demo target `saucedemo` and the archived `lambdatest`) with one command, no manual `.env` editing.
+- **Switch target environments atomically** (`dev`, `stg`, `uat`, `prod`) with one command, no manual `.env` editing.
 - **Validate every API response against a strict Zod schema** with zero `any` types, so a contract break fails loudly and typed.
 - **Enforce code-quality rules mechanically**, not just by convention: a custom guardrail checker blocks `waitForTimeout`, XPath selectors, the `any` type, pseudo-Gherkin steps, and raw Playwright imports in UI specs, both as a pre-write hook for AI agents and as a CI gate.
 - **Run everywhere identically**: locally, in Docker (for cross-platform visual consistency), or in GitHub Actions CI.
@@ -104,7 +104,7 @@ playwright-ai-workbench/
 │   ├── PLAN-LEDGER.md          # What's actually been verified vs. just planned
 │   ├── templates/             # Shared vocabulary (IDs, priority, SFDIPOT, oracles) + defect record format
 │   └── targets/               # REGISTRY.md (every target) + <target>-defects.md (that target's ledger)
-├── env-config/                 # Plain .env templates per environment (dev/stg/uat/prod/saucedemo/lambdatest)
+├── env-config/                 # Plain .env templates per environment (dev/stg/uat/prod)
 ├── fixtures/                   # Composable Playwright fixtures (dependency injection)
 │   ├── ui.fixture.ts           # Injects page objects and components
 │   ├── api.fixture.ts          # Injects an authenticated APIRequestContext
@@ -137,18 +137,15 @@ playwright-ai-workbench/
 
 Each Playwright config reads `UI_BASE_URL` / `API_BASE_URL` straight from `process.env` (loaded via `dotenv/config`). There is no custom environment resolver — just plain `.env` files you select from.
 
-| Template                                      | Target                                                                    |
-| :-------------------------------------------- | :------------------------------------------------------------------------ |
-| `env-config/dev.env`                          | Sauce Demo + bill-pay API (default local dev)                             |
-| `env-config/saucedemo.env`                    | Sauce Demo (primary UI/visual/audit target)                               |
-| `env-config/lambdatest.env`                   | LambdaTest eCommerce Playground (archived, never exercised by any spec)   |
-| `env-config/stg.env` / `uat.env` / `prod.env` | Placeholder templates — replace the URLs with your own authorized targets |
+| Template                                      | Target                                                                                                                               |
+| :-------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------- |
+| `env-config/dev.env`                          | Sauce Demo + bill-pay API (default local dev)                                                                                        |
+| `env-config/stg.env` / `uat.env` / `prod.env` | Same Sauce Demo + bill-pay API values as `dev.env` today — overwrite with your own per-environment URLs once you bring a real target |
 
 Switch environments:
 
 ```sh
-npm run env:config -- saucedemo   # copies env-config/saucedemo.env -> .env
-npm run env:config -- stg        # or uat / prod / dev / lambdatest
+npm run env:config -- dev   # or stg / uat / prod
 ```
 
 Override a single URL for one run without touching `.env` (shell/CI variables always win over `.env`):
