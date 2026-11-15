@@ -1,4 +1,5 @@
 import { test, expect } from '@fixtures';
+import { SortOption } from '../../../types/sort-option.enum';
 
 // Runs already logged in via tests/ui/saucedemo/auth.setup.ts's saved storageState.
 test.describe('Inventory sorting', () => {
@@ -11,7 +12,7 @@ test.describe('Inventory sorting', () => {
     { tag: '@edge', annotation: [{ type: 'scenario', description: 'SC-007' }] },
     async ({ saucedemoInventoryPage }) => {
       await test.step('Sort by Price (low to high)', async () => {
-        await saucedemoInventoryPage.sortBy('Price (low to high)');
+        await saucedemoInventoryPage.sortBy(SortOption.PRICE_LOW_TO_HIGH);
       });
 
       await test.step('Verify the prices are ascending', async () => {
