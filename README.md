@@ -209,7 +209,7 @@ Pure `APIRequestContext`-based contract tests against the bill-pay demo API: hea
 
 ### Visual (`tests/visual/`, `config/playwright.visual.config.ts`)
 
-Snapshot regression, configured for **desktop (1280×720), tablet (iPad), and mobile (iPhone 14)** viewports, with `maxDiffPixelRatio: 0.02` / `threshold: 0.05` tolerances and animations disabled for determinism. **Opt-in and excluded from `npm test`** because baseline snapshots need a human-approved first run and are platform/font-rendering sensitive — run it explicitly, and prefer the Docker variant (`npm run test:visual:docker`) for reproducible baselines across machines. Currently: no specs - a real gap, not a deliberate scope decision (see `PLAN.md` Phase 4); the config and `npm run test:visual` command are ready the moment a spec is added.
+Snapshot regression, configured for **desktop (1280×720), tablet (iPad), and mobile (iPhone 14)** viewports, with `maxDiffPixelRatio: 0.02` / `threshold: 0.05` tolerances and animations disabled for determinism. **Opt-in and excluded from `npm test`** because baseline snapshots need a human-approved first run and are platform/font-rendering sensitive — run it explicitly, and prefer the Docker variant (`npm run test:visual:docker`) for reproducible baselines across machines. Currently: 5 scenarios (login, inventory, cart, checkout x2) across all 3 viewports, 15 screenshots total, baselines generated and verified via Docker (pinned to `linux/amd64` to match CI), and a dedicated `visual` leg in the CI matrix.
 
 ### Audit (`tests/audit/`, `config/playwright.audit.config.ts`)
 

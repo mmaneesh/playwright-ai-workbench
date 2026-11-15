@@ -61,6 +61,29 @@ left blank - full one-line definitions in `docs/templates/README.md`):
 Familiar problems, Explainability, World, History, Image, Comparable products,
 Claims, User expectations, Product consistency, Purpose, Statutes and standards.
 
+### Exploring an API surface
+
+No separate HTTP client needed - the same browser tools cover it:
+
+1. `browser_navigate` to the API's base URL or an endpoint on it. A GET
+   response renders directly in the page; read it with `browser_snapshot` or
+   `browser_evaluate`.
+2. For any other method, header, or body (auth tokens, POST/PUT/PATCH), use
+   `browser_evaluate` to run `fetch()` from within that page - it's
+   same-origin to whatever you navigated to, so it isn't blocked by CORS the
+   way a cross-origin call from elsewhere would be. `browser_network_requests`
+   / `browser_network_request` then show the full request/response for the
+   record.
+3. This still only reaches an origin already on `--allowed-origins` (Stage 0) - the same boundary that gates UI exploration gates this too.
+
+### DB surfaces: not yet supported
+
+No tool here reaches a database directly. If DB is a declared surface
+(Stage 0) and there's no UI/API path to observe the same behavior, stop and
+say so rather than guessing or skipping it silently - this is the gap
+`INTENT.md` §8 names as "built the first time Stage 0 confirms a target that
+has one," not solved yet.
+
 ## What never to do
 
 - Never confuse mechanical scraping with exploration - it's learning, modeling,
